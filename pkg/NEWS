@@ -1,0 +1,21 @@
+Changes in Version 0.3
+
+    o Added support for scoring forecasts with greater than 2
+      alternatives.
+
+    o Added data WeatherProbs, which contains three-category weather
+      forecasts concerning temperature and precipitation.
+
+    o Argument 'scaling' in calcscore() and plotscore() replaced with
+      'bounds', so the user can supply desired lower and upper bounds
+      of the scores.
+
+    o Added a 'reverse' argument that, if TRUE, assigns larger 
+      scores to good forecasters (as opposed to smaller scores).
+
+Changes in Version 0.2
+
+    o Fixed a bug associated with the beta family, where scaling=TRUE 
+      sometimes still resulted in scores > 1.
+
+    o Updated Merkle & Steyvers reference to reflect its acceptance.

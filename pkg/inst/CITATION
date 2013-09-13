@@ -1,0 +1,15 @@
+citHeader("To cite scoring in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Choosing a Strictly Proper Scoring Rule",
+  author       = personList(as.person("Edgar C. Merkle"),
+                   as.person("Mark Steyvers")),
+  journal      = "Decision Analysis",
+  year         = "in press",
+
+
+  textVersion  =
+  paste("Merkle, E. C. & Steyvers, M. (in press).",
+        "Choosing a strictly proper scoring rule.",
+        "Decision Analysis.")
+)
