@@ -29,8 +29,8 @@ function(pars, fam="pow"){
       
       fore <- out <- rep(0,nalts)
       fore[minbase] <- 1
-      out[maxbase] <- 1
-      tmpsc <- calcscore(c(minbase,minbase) ~ rbind(fore,out), fam=fam, param=pars)
+      ##out[maxbase] <- 1
+      tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore), fam=fam, param=pars)
       ##scmin <- calcscore(matrix(fore,1,nalts) ~ matrix(fore,1,nalts), fam=fam,
       ##                   param=pars)
       ##scmax <- calcscore(matrix(fore,1,nalts) ~ matrix(out,1,nalts), fam=fam,

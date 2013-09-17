@@ -86,7 +86,12 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
             ## If two alternatives and one baseline, take
             ## complement
             if(npars==2){
-                param <- c(param, 1-param[2])
+                if(NCOL(forecast)==1){
+                    param <- c(param[1], 1-param[2], param[2])
+                } else {
+                    warning("Only one baseline parameter supplied. This parameter is assumed to correspond to alternative associated with the first column of forecasts.\n")
+                    param <- c(param, 1-param[2])
+                }
             } else {
                 if(npars != (nalts+1)) stop("Length of param is incorrect.\n")
                 warning("Baseline parameters were scaled to sum to 1.")

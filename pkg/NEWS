@@ -1,3 +1,6 @@
+    o Fixed bug in scalescores, causing some min/max values of
+      pow- and sph-families were computed incorrectly.
+
     o Updated 'made' column of WeatherProbs to reflect correct dates.
 
 Changes in Version 0.3
