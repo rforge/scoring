@@ -1,7 +1,11 @@
-    o Fixed bug in scalescores, causing some min/max values of
-      pow- and sph-families were computed incorrectly.
+Changes in Version 0.4
 
-    o Updated 'made' column of WeatherProbs to reflect correct dates.
+    o Fixed bug in scalescores(), causing some min/max values of
+      pow- and sph-families to be computed incorrectly.  This
+      impacted attempted use of the 'bounds' argument.
+
+    o Corrected the 'made' column of WeatherProbs to reflect correct
+      dates.
 
 Changes in Version 0.3
 
