@@ -1,5 +1,8 @@
 Changes in Version 0.5
 
+    o Added support for scoring rules that are sensitive
+      to distance, a la Jose et al, 2009, Management Science
+
 Changes in Version 0.4
 
     o Fixed bug in scalescores(), causing some min/max values of

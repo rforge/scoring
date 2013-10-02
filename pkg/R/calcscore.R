@@ -2,7 +2,7 @@ calcscore <- function(object, ...){
     UseMethod("calcscore")
 }
 
-calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, reverse=FALSE, ...){
+calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, reverse=FALSE, ordered=FALSE, ...){
 
     ## For deprecated scaling argument
     dots <- list(...)
@@ -25,12 +25,12 @@ calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, rever
     forecast <- mf[,2:ncol(mf)]
     if(missing(param)) param <- c(2, rep(1/max(2,NCOL(forecast)), max(2,NCOL(forecast))))
 
-    do.call("calcscore.default", list(object=forecast, outcome=outcome, fam=fam, param=param, bounds=bounds, reverse=reverse))
+    do.call("calcscore.default", list(object=forecast, outcome=outcome, fam=fam, param=param, bounds=bounds, reverse=reverse, ordered=ordered))
 
 }
             
 calcscore.default <-
-function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2,NCOL(forecast)))), bounds=NULL, reverse=FALSE, ...){
+function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2,NCOL(forecast)))), bounds=NULL, reverse=FALSE, ordered=FALSE, ...){
 
     ## For deprecated scaling argument
     dots <- list(...)
@@ -93,19 +93,21 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
                     param <- c(param, 1-param[2])
                 }
             } else {
+                ## FIXME? May impact ordinal scores because npars
+                ##        will always equal 3.
                 if(npars != (nalts+1)) stop("Length of param is incorrect.\n")
                 warning("Baseline parameters were scaled to sum to 1.")
                 param[2:npars] <- param[2:npars]/sum(param[2:npars])
             }
         }
-    }    
+    }
     ## END ERROR CHECKING
 
     ## Create data matrix
     if(NCOL(forecast)==1) forecast <- cbind(1-forecast, forecast)
     datmat <- cbind(forecast, outcome)
     ## Obtain unscaled scores
-    sc <- scoreitems(param, datmat, fam)
+    sc <- scoreitems(param, datmat, fam, ordered)
 
     ## Scale if desired
     if(!is.null(bounds) | reverse){

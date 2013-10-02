@@ -1,5 +1,5 @@
 scalescores <-
-function(pars, fam="pow"){
+function(pars, fam="pow", ordered){
   ps <- c(0,1)
 
   ## Shortcut for scaling scores for >2 alts
@@ -7,7 +7,9 @@ function(pars, fam="pow"){
   ##     and lowest baseline occurs.
   ## Max must be achieved when forecast 0 for highest baseline
   ##     and 1 for lowest and highest baseline occurs.
-  
+
+  ## No ordered mods because this family can only be used
+  ## for two-alternative forecasts
   if(fam=="beta"){
       xplier <- max(betafam(c(1,0), d=2, param=pars),
                     betafam(c(0,1), d=1, param=pars))
@@ -18,6 +20,8 @@ function(pars, fam="pow"){
       }
       
   } else if(fam=="pow" | fam=="sph"){
+      ## FIXME: The max and min are incorrect for
+      ##        ordered scores; revisit this.
       nalts <- length(pars)-1
       ## Baseline parameters
       baselines <- pars[2:(nalts+1)]
@@ -30,7 +34,7 @@ function(pars, fam="pow"){
       fore <- out <- rep(0,nalts)
       fore[minbase] <- 1
       ##out[maxbase] <- 1
-      tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore), fam=fam, param=pars)
+      tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore), fam=fam, param=pars, ordered=ordered)
       ##scmin <- calcscore(matrix(fore,1,nalts) ~ matrix(fore,1,nalts), fam=fam,
       ##                   param=pars)
       ##scmax <- calcscore(matrix(fore,1,nalts) ~ matrix(out,1,nalts), fam=fam,

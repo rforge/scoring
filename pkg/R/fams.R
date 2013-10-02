@@ -1,5 +1,5 @@
 betafam <-
-function(p, d, param){
+function(p, d, param, ...){
     ## Define integrand:
     ## Inf and NaN arise when 0 is raised to a negative power.
     ## This happens when d==p.
@@ -28,7 +28,7 @@ function(p, d, param){
 
 
 powfam <-
-function(p, d, param){
+function(p, d, param, ...){
     ## Obtain score from power family with baseline for a single
     ## forecast.
     gam <- param[1]
@@ -45,7 +45,7 @@ function(p, d, param){
 
 
 sphfam <-
-function(p, d, param){
+function(p, d, param, ...){
     ## Obtain score from pseudospherical family with baseline for a single
     ## forecast.
     gam <- param[1]
@@ -57,4 +57,37 @@ function(p, d, param){
 
     ## Now combine them
     -(1/(gam-1)) * ((num/denom)^(gam-1) - 1)
+}
+
+
+## NB Beta family param is just for a 2-alternative rule,
+##    while pow and sph are for multi-alternatives
+ordwrap <- function(p, d, param, fam){
+    ## Wrapper to get ordinal score out of any other family
+    ## (Jose, Nau, Winkler, 2009, Management Science, Eq (6) + (13))    
+    p1 <- cumsum(p)
+    p2 <- 1 - p1
+    dvec <- rep(2, length(p))
+    dvec[d:length(dvec)] <- 1
+    tmpdat <- data.frame(p1, p2, dvec)
+    tmpdat <- tmpdat[1:(nrow(tmpdat)-1),]
+
+    ## Cumulative baselines for pow and sph
+    if(fam == "beta"){
+        tmpscore <- calcscore(dvec ~ p1 + p2, data = tmpdat, fam = fam,
+                              param = param)
+    } else {
+        Q <- cumsum(param[2:length(param)])
+
+        ## FIXME: Modify calcscore to accept different param values
+        ##        for each forecast row, then this loop can be removed.
+        tmpscore <- rep(NA, nrow(tmpdat))
+        for(i in 1:nrow(tmpdat)){
+            tmpscore[i] <- calcscore(dvec ~ p1 + p2, data = tmpdat[i,],
+                                     fam = fam,
+                                     param = c(param[1], Q[i], 1 - Q[i]))
+        }
+    }
+
+    sum(tmpscore)
 }
