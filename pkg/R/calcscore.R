@@ -113,7 +113,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(!is.null(bounds) | reverse){
         ## Aug 26 2013: scoreitems appears to handle multiple alts
         ## 2-alternative examples yield same results as before
-        scalefactor <- scalescores(param, fam)
+        scalefactor <- scalescores(param, fam, ordered)
 
         lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
         ubound <- ifelse(is.na(bounds[2]), 1, bounds[2])

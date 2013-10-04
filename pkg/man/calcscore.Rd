@@ -12,11 +12,11 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
 }
 \usage{
 \method{calcscore}{formula}(object, fam="pow", param, data, bounds=NULL,
-                  reverse=FALSE, ...)
+                  reverse=FALSE, ordered=FALSE, ...)
 
 \method{calcscore}{default}(object, outcome, fam="pow",
                   param=c(2,rep(1/max(2,NCOL(forecast)),max(2,NCOL(forecast)))),
-                  bounds=NULL, reverse=FALSE, ...)
+                  bounds=NULL, reverse=FALSE, ordered=FALSE, ...)
 }
 \arguments{
   \item{object}{an object of class  "formula", of the form
@@ -45,17 +45,26 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
                   the natural, family-implied bounds.}
   \item{reverse}{if \code{FALSE} (default), smaller scores imply better
     forecasts.  If \code{TRUE}, larger scores imply better forecasts.}
+  \item{ordered}{if \code{FALSE} (default), forecast alternatives have
+                  no ordering.  If \code{TRUE}, forecast alternatives
+                  have the ordering implied by \code{forecast}.  The
+                  resulting scoring rule is sensitive to this ordering
+                  (see details).}
   \item{...}{Additional arguments.}
 }
 \details{
   The formula is of the form \code{outcome ~ forecast}, where \code{forecast} describes the column(s) containing forecasts associated with the possible outcomes.  Multiple columns are separated by \code{+}.  \code{outcome} is always a vector describing the outcome associated with each forecast.  These should be coded 1, 2, ..., reflecting the column associated with the outcome (see examples).
 
 For events with only two alternatives, one can take a shortcut and supply only forecasts and baseline parameters (for families \code{pow} and \code{sph}) associated with a single outcome.  In this case, the \code{outcome} vector should contain zeros and ones, where `one' means that the forecasted alternative occurred.
+  
+If \code{ordered=TRUE}, an "ordinal" scoring rule is used using the
+strategy proposed by Jose, Nau, & Winkler (2009).  These ordinal rules
+are most sensibly used in tandem with families \code{pow} and \code{sph}.
 
 When the \code{bounds} argument is supplied, the code attempts to scale the scores so that the maximum score is \code{bounds[2]} and the minimum score is \code{bounds[1]}.  This scaling cannot be accomplished when the scoring rule allows scores of infinity (the log score is the most common case here).  If \code{reverse=TRUE}, the bounds are applied after the reversal (so that the supplied lower bound reflects the worst score and upper bound reflects the best score).
 }
 
-\note{  The beta family was originally proposed by Buja et al. (2005); the power and pseudospherical families with baseline are described by Jose et al. (2009).  A discussion of choosing specific rules from these families is provided by Merkle and Steyvers (2013).
+\note{The beta family was originally proposed by Buja et al. (2005); the power and pseudospherical families with baseline are described by Jose et al. (2009).  A discussion of choosing specific rules from these families is provided by Merkle and Steyvers (2013).
 
 Some notable special cases of these families are:
 
