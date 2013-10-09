@@ -82,6 +82,8 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     
     ## For fam=pow or sph, check to ensure that baseline params sum to 1.
     if(fam %in% c("pow","sph")){
+        ## TODO: If length(param)==1, then assume this is a rule without
+        ##       a baseline.
         if(sum(param[2:npars]) != 1){
             ## If two alternatives and one baseline, take
             ## complement
@@ -93,8 +95,6 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
                     param <- c(param, 1-param[2])
                 }
             } else {
-                ## FIXME? May impact ordinal scores because npars
-                ##        will always equal 3.
                 if(npars != (nalts+1)) stop("Length of param is incorrect.\n")
                 warning("Baseline parameters were scaled to sum to 1.")
                 param[2:npars] <- param[2:npars]/sum(param[2:npars])
@@ -110,24 +110,31 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     sc <- scoreitems(param, datmat, fam, ordered)
 
     ## Scale if desired
-    if(!is.null(bounds) | reverse){
+    if(!is.null(bounds)){
         ## Aug 26 2013: scoreitems appears to handle multiple alts
         ## 2-alternative examples yield same results as before
         scalefactor <- scalescores(param, fam, ordered)
 
         lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
-        ubound <- ifelse(is.na(bounds[2]), 1, bounds[2])
+        ubound <- ifelse(is.na(bounds[2]), 1 + lbound, bounds[2])
 
-        ## Note: reverse is logical but used as 0/1 below.
         if(fam=="beta"){
             ## TODO consider other scaling for beta family?
             sc <- sc/scalefactor
         } else {
             sc <- (sc - scalefactor[1])/diff(scalefactor)
         }
-        if(reverse) sc <- 1 - sc
         sc <- lbound + (ubound - lbound)*sc
     }
+
+    if(reverse){
+        if(is.null(bounds)){
+            sc <- -sc
+        } else {
+            sc <- ubound - sc
+        }
+    }
+
     if(any(is.na(sc))){
         stop("Problem with score calculation.  Ensure parameter values are valid.")
     }
