@@ -32,7 +32,13 @@ function(p, d, param, ...){
     ## Obtain score from power family with baseline for a single
     ## forecast.
     gam <- param[1]
-    cpar <- param[2:length(param)]
+    if(length(param)==1){
+      ## We are using the family without baselines:
+      cpar <- rep(1, length(p))
+    } else {
+      ## We are using the family with baselines
+      cpar <- param[2:length(param)]
+    }
 
     ## JNW 2009, eq (11), numerator of first term
     num1 <- (p[d]/cpar[d])^(gam-1) - 1
@@ -49,7 +55,13 @@ function(p, d, param, ...){
     ## Obtain score from pseudospherical family with baseline for a single
     ## forecast.
     gam <- param[1]
-    cpar <- param[2:length(param)]
+    if(length(param)==1){
+      ## We are using the family without baselines:
+      cpar <- rep(1, length(p))
+    } else {
+      ## We are using the family with baselines
+      cpar <- param[2:length(param)]
+    }
 
     ## JNW 2009, eq (12), numerator and denominator of term in square brackets
     num <- p[d]/cpar[d]
@@ -61,10 +73,10 @@ function(p, d, param, ...){
 
 
 ## NB Beta family param is just for a 2-alternative rule,
-##    while pow and sph are for multi-alternatives
+##    while pow and sph are for multi-alternatives.
 ordwrap <- function(p, d, param, fam){
     ## Wrapper to get ordinal score out of any other family
-    ## (Jose, Nau, Winkler, 2009, Management Science, Eq (6) + (13))    
+    ## (See Jose, Nau, Winkler, 2009, Management Science, Eq (6) + (13))    
     p1 <- cumsum(p)
     p2 <- 1 - p1
     dvec <- rep(2, length(p))

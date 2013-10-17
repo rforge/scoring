@@ -1,5 +1,5 @@
 scalescores <-
-function(pars, fam="pow", ordered){
+function(pars, fam="pow", ordered, nalts){
   ps <- c(0,1)
 
   ## Shortcut for scaling scores for >2 alts
@@ -22,14 +22,19 @@ function(pars, fam="pow", ordered){
   } else if(fam=="pow" | fam=="sph"){
       ## FIXME: The max and min are incorrect for
       ##        ordered scores; revisit this.
-      nalts <- length(pars)-1
-      ## Baseline parameters
-      baselines <- pars[2:(nalts+1)]
-      ## Which are largest and smallest?
-      maxbase <- which(baselines==max(baselines))[1]
-      minbase <- which(baselines==min(baselines))
-      ## Take last category, in case they are all equal
-      minbase <- minbase[length(minbase)]
+
+      ## Check for baseline parameters
+      if(length(pars) == 1){
+        maxbase <- 1
+        minbase <- 2
+      } else {
+        baselines <- pars[2:(nalts+1)]
+        ## Which are largest and smallest?
+        maxbase <- which(baselines==max(baselines))[1]
+        minbase <- which(baselines==min(baselines))
+        ## Take last category, in case they are all equal
+        minbase <- minbase[length(minbase)]
+      }
       
       fore <- out <- rep(0,nalts)
       fore[minbase] <- 1

@@ -32,9 +32,9 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
     pseudospherical family.}
   \item{param}{for family \code{beta}, a numeric vector of length 2
     containing the scoring rule family parameters.
-    For other families, a numeric vector of length
-    \code{NCOL(forecast)+1}, containing first the family parameter gamma
-    and then the baseline parameters (see details).}
+    For other families, a numeric vector containing first the family
+    parameter gamma and optionally \code{NCOL(forecast)} baseline
+                  parameters (see details).}
   \item{data}{an optional data frame or list containing the
           variables in the model.  If not found in \code{data}, the
           variables are taken from the environment from which
@@ -55,11 +55,17 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
 \details{
   The formula is of the form \code{outcome ~ forecast}, where \code{forecast} describes the column(s) containing forecasts associated with the possible outcomes.  Multiple columns are separated by \code{+}.  \code{outcome} is always a vector describing the outcome associated with each forecast.  These should be coded 1, 2, ..., reflecting the column associated with the outcome (see examples).
 
-For events with only two alternatives, one can take a shortcut and supply only forecasts and baseline parameters (for families \code{pow} and \code{sph}) associated with a single outcome.  In this case, the \code{outcome} vector should contain zeros and ones, where `one' means that the forecasted alternative occurred.
-  
-If \code{ordered=TRUE}, an "ordinal" scoring rule is used using the
+For events with only two alternatives, one can take a shortcut and
+supply only forecasts associated with a single outcome (if baseline
+parameters are specified for families \code{pow} and \code{sph}, the
+parameter for only that outcome should also be supplied).  In this case, the \code{outcome} vector should contain zeros and ones, where `one' means that the forecasted alternative occurred.
+
+If \code{ordered=TRUE}, an "ordinal" scoring rule is obtained using the
 strategy proposed by Jose, Nau, & Winkler (2009).  These ordinal rules
 are most sensibly used in tandem with families \code{pow} and \code{sph}.
+
+If baseline parameters are not supplied for families \code{pow} or
+\code{sph}, then the parameters are taken to be equal across all alternatives.
 
 When the \code{bounds} argument is supplied, the code attempts to scale the scores so that the maximum score is \code{bounds[2]} and the minimum score is \code{bounds[1]}.  This scaling cannot be accomplished when the scoring rule allows scores of infinity (the log score is the most common case here).  If \code{reverse=TRUE}, the bounds are applied after the reversal (so that the supplied lower bound reflects the worst score and upper bound reflects the best score).
 }

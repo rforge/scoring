@@ -68,9 +68,7 @@ avgbrier <- with(WeatherProbs, tapply(res, stn, mean))
 avgobrier <- with(WeatherProbs, tapply(res2, stn, mean))
 avgsph <- with(WeatherProbs, tapply(res3, stn, mean))
 
-## Brier vs Ordinal Brier
-plot(res, res2, pch=20, xlab="Brier", ylab="Ordinal Brier")
-## Brier vs Spherical
-plot(res, res3, pch=20, xlab="Brier", ylab="Spherical"
+## Average Brier vs average ordinal Brier
+plot(avgbrier, avgobrier, pch=20, xlab="Brier", ylab="Ordinal Brier")
 }
 \keyword{datasets}

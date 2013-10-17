@@ -82,22 +82,24 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     
     ## For fam=pow or sph, check to ensure that baseline params sum to 1.
     if(fam %in% c("pow","sph")){
-        ## TODO: If length(param)==1, then assume this is a rule without
-        ##       a baseline.
-        if(sum(param[2:npars]) != 1){
-            ## If two alternatives and one baseline, take
-            ## complement
-            if(npars==2){
-                if(NCOL(forecast)==1){
-                    param <- c(param[1], 1-param[2], param[2])
+        ## If length(param)==1, then assume this is a rule without
+        ## a baseline.
+        if(npars > 1){
+            if(sum(param[2:npars]) != 1){
+                ## If two alternatives and one baseline, take
+                ## complement
+                if(npars==2){
+                    if(NCOL(forecast)==1){
+                        param <- c(param[1], 1-param[2], param[2])
+                    } else {
+                        warning("Only one baseline parameter supplied. This parameter is assumed to correspond to alternative associated with the first column of forecasts.\n")
+                        param <- c(param, 1-param[2])
+                    }
                 } else {
-                    warning("Only one baseline parameter supplied. This parameter is assumed to correspond to alternative associated with the first column of forecasts.\n")
-                    param <- c(param, 1-param[2])
+                    if(npars != (nalts+1)) stop("Length of param is incorrect.\n")
+                    warning("Baseline parameters were scaled to sum to 1.")
+                    param[2:npars] <- param[2:npars]/sum(param[2:npars])
                 }
-            } else {
-                if(npars != (nalts+1)) stop("Length of param is incorrect.\n")
-                warning("Baseline parameters were scaled to sum to 1.")
-                param[2:npars] <- param[2:npars]/sum(param[2:npars])
             }
         }
     }
@@ -113,7 +115,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(!is.null(bounds)){
         ## Aug 26 2013: scoreitems appears to handle multiple alts
         ## 2-alternative examples yield same results as before
-        scalefactor <- scalescores(param, fam, ordered)
+        scalefactor <- scalescores(param, fam, ordered, nalts)
 
         lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
         ubound <- ifelse(is.na(bounds[2]), 1 + lbound, bounds[2])
