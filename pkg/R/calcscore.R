@@ -132,7 +132,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
         if(is.null(bounds)){
             sc <- -sc
         } else {
-            sc <- ubound - sc
+            sc <- lbound + ubound - sc
         }
     }
 

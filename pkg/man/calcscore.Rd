@@ -60,8 +60,8 @@ supply only forecasts associated with a single outcome (if baseline
 parameters are specified for families \code{pow} and \code{sph}, the
 parameter for only that outcome should also be supplied).  In this case, the \code{outcome} vector should contain zeros and ones, where `one' means that the forecasted alternative occurred.
 
-If \code{ordered=TRUE}, an "ordinal" scoring rule is obtained using the
-strategy proposed by Jose, Nau, & Winkler (2009).  These ordinal rules
+If \code{ordered=TRUE}, an "ordered" scoring rule is obtained using the
+strategy proposed by Jose, Nau, & Winkler (2009).  These ordered rules
 are most sensibly used in tandem with families \code{pow} and \code{sph}.
 
 If baseline parameters are not supplied for families \code{pow} or
@@ -120,28 +120,47 @@ with(WorldEvents, tapply(scores, forecaster, mean))
 ## Brier scores for 3 alternatives, with bounds of 0 and 1
 data("WeatherProbs")
 scores2 <- calcscore(tcat ~ tblw + tnrm + tabv, fam="pow",
-                     param=c(2,rep(1/3,3)), data=WeatherProbs,
+                     param=2, data=WeatherProbs,
                      bounds=c(0,1))
 
 ## Spherical scores for 3 alternatives, reversed so 0 is worst and
 ## 1 is best
 scores3 <- calcscore(tcat ~ tblw + tnrm + tabv, fam="sph",
-                     param=c(2,rep(1/3,3)), data=WeatherProbs,
+                     param=2, data=WeatherProbs,
                      bounds=c(0,1), reverse=TRUE)
 
 ## Replicate Jose, Nau, & Winkler, 2009, Figure 1
 r2 <- seq(0, .6, .05)
 r <- cbind(.4, r2, .6 - r2)
 j <- rep(1, length(r2))
-quad <- calcscore(j ~ r, fam="pow", param=2, reverse=TRUE)
+
+## Panel 1
+quad <- calcscore(j ~ r, fam="pow", param=2, bounds=c(-1,1), reverse=TRUE)
 quadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1), reverse=TRUE)
-rankquad <- calcscore(j ~ r, fam="pow", param=2, ordered=TRUE,
-reverse=TRUE)
-rankquadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1),
-ordered=TRUE, reverse=TRUE)
-## Different quadratic scaling:
-plot(r2, quad, ylim=c(-2,1), type='l')
+rankquad <- calcscore(j ~ r, fam="pow", param=2, ordered=TRUE, reverse=TRUE)
+rankquadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1), ordered=TRUE, reverse=TRUE)
+plot(r2, quad, ylim=c(-2,1), type="l", ylab="Quadratic scores")
 lines(r2, quadbase, lty=2)
-lines(r2, rankquad, lty=3, type='o', pch=22)
-lines(r2, rankquadbase, lty=4, type='o', pch=2)
+lines(r2, rankquad, type="o", pch=22)
+lines(r2, rankquadbase, type="o", pch=2)
+
+## Panel 2
+sph <- calcscore(j ~ r, fam="sph", param=2, reverse=TRUE, bounds=c(-1.75,1))
+sphbase <- calcscore(j ~ r, fam="sph", param=c(2,.3,.6,.1), reverse=TRUE)
+ranksph <- calcscore(j ~ r, fam="sph", param=2, ordered=TRUE, reverse=TRUE)
+ranksphbase <- calcscore(j ~ r, fam="sph", param=c(2,.3,.6,.1), ordered=TRUE, reverse=TRUE)
+plot(r2, sph, ylim=c(-1,.6), type="l", ylab="Spherical scores")
+lines(r2, sphbase, lty=2)
+lines(r2, ranksph, type="o", pch=22)
+lines(r2, ranksphbase, type="o", pch=2)
+
+## Panel 3
+lg <- calcscore(j ~ r, fam="pow", param=1.001, reverse=TRUE)
+lgbase <- calcscore(j ~ r, fam="pow", param=c(1.001,.3,.6,.1), reverse=TRUE)
+ranklg <- calcscore(j ~ r, fam="pow", param=1.001, ordered=TRUE, reverse=TRUE)
+ranklgbase <- calcscore(j ~ r, fam="pow", param=c(1.001,.3,.6,.1), ordered=TRUE, reverse=TRUE)
+plot(r2, lg, ylim=c(-2,1), type="l", ylab="Log scores")
+lines(r2, lgbase, lty=2)
+lines(r2, ranklg, type="o", pch=22)
+lines(r2, ranklgbase, type="o", pch=2)
 }

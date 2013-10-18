@@ -29,4 +29,10 @@ test_that('manyalt', {
   expect_is(scores4, 'numeric')
   expect_false(any(is.na(scores4)))
   expect_true(all(scores4 <= 1) & all(scores4 >= 0))
+
+  r2 <- seq(0, .6, .05)
+  r <- cbind(.4, r2, .6 - r2)
+  j <- rep(1, length(r2))
+  quad <- calcscore(j ~ r, fam="pow", param=2, bounds=c(-1,1), reverse=TRUE)
+  expect_true(all(quad >= -1) & (quad <= 1))
 })
