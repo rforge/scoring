@@ -89,15 +89,17 @@ ordwrap <- function(p, d, param, fam){
         tmpscore <- calcscore(dvec ~ p1 + p2, data = tmpdat, fam = fam,
                               param = param)
     } else {
-        Q <- cumsum(param[2:length(param)])
+        if(length(param) > 1) Q <- cumsum(param[2:length(param)])
 
         ## FIXME: Modify calcscore to accept different param values
         ##        for each forecast row, then this loop can be removed.
         tmpscore <- rep(NA, nrow(tmpdat))
         for(i in 1:nrow(tmpdat)){
+            if(length(param) > 1) tmpparam <- c(param[1], Q[i], 1 - Q[i])
+            else tmpparam <- param
             tmpscore[i] <- calcscore(dvec ~ p1 + p2, data = tmpdat[i,],
                                      fam = fam,
-                                     param = c(param[1], Q[i], 1 - Q[i]))
+                                     param = tmpparam)
         }
     }
 

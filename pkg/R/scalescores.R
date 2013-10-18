@@ -20,32 +20,48 @@ function(pars, fam="pow", ordered, nalts){
       }
       
   } else if(fam=="pow" | fam=="sph"){
-      ## FIXME: The max and min are incorrect for
-      ##        ordered scores; revisit this.
-
       ## Check for baseline parameters
       if(length(pars) == 1){
         maxbase <- 1
         minbase <- 2
       } else {
-        baselines <- pars[2:(nalts+1)]
-        ## Which are largest and smallest?
-        maxbase <- which(baselines==max(baselines))[1]
-        minbase <- which(baselines==min(baselines))
-        ## Take last category, in case they are all equal
-        minbase <- minbase[length(minbase)]
+          baselines <- pars[2:(nalts+1)]
+          ## Which are largest and smallest?
+          maxbase <- which(baselines==max(baselines))
+          if(length(maxbase)>1){
+              ## Choose the most extreme alternative
+              maxbase <- maxbase[which.max(abs(maxbase - length(baselines)/2))[1]]
+          }
+          minbase <- which(baselines==min(baselines))
+          if(length(minbase)>1){
+              ## Choose the most extreme alternative
+              extcat <- minbase[which.max(abs(minbase - length(baselines)/2))[1]]
+              ## In case they are all equal, take a different category
+              minbase <- ifelse(extcat == maxbase,
+                                minbase[minbase!=maxbase][1],
+                                extcat)
+          }
       }
+
+      if(ordered==FALSE){
+          ## We can easily identify the min/max score
+          fore <- out <- rep(0,nalts)
+          fore[minbase] <- 1
+
+          tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore), fam=fam, param=pars, ordered=ordered)
       
-      fore <- out <- rep(0,nalts)
-      fore[minbase] <- 1
-      ##out[maxbase] <- 1
-      tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore), fam=fam, param=pars, ordered=ordered)
-      ##scmin <- calcscore(matrix(fore,1,nalts) ~ matrix(fore,1,nalts), fam=fam,
-      ##                   param=pars)
-      ##scmax <- calcscore(matrix(fore,1,nalts) ~ matrix(out,1,nalts), fam=fam,
-      ##                   param=pars)
-      
-      xplier <- tmpsc #c(scmin, scmax)
+          xplier <- tmpsc #c(scmin, scmax)
+      } else {
+          ## Try a larger number of values (could probably derive
+          ## the min/max to make this faster)
+          fore <- diag(1, nalts)
+          minbase <- rep(minbase, nrow(fore))
+          maxbase <- rep(maxbase, nrow(fore))
+          tmpsc <- calcscore(c(minbase, maxbase) ~ rbind(fore, fore), fam=fam, param=pars, ordered=ordered)
+
+          xplier <- c(min(tmpsc), max(tmpsc))
+      }
+      ## Will get Inf for log scores and possibly others
       if(xplier[2]==Inf){
           warning("Scaling does not work because maximum possible score is Inf.")
           xplier <- c(0,1)

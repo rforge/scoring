@@ -79,7 +79,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     ## Number of alternatives and number of parameters
     nalts <- ifelse(NCOL(forecast) <= 2, 2, NCOL(forecast))
     npars <- length(param)
-    
+
     ## For fam=pow or sph, check to ensure that baseline params sum to 1.
     if(fam %in% c("pow","sph")){
         ## If length(param)==1, then assume this is a rule without
@@ -121,7 +121,6 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
         ubound <- ifelse(is.na(bounds[2]), 1 + lbound, bounds[2])
 
         if(fam=="beta"){
-            ## TODO consider other scaling for beta family?
             sc <- sc/scalefactor
         } else {
             sc <- (sc - scalefactor[1])/diff(scalefactor)

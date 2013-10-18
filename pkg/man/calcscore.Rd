@@ -128,4 +128,20 @@ scores2 <- calcscore(tcat ~ tblw + tnrm + tabv, fam="pow",
 scores3 <- calcscore(tcat ~ tblw + tnrm + tabv, fam="sph",
                      param=c(2,rep(1/3,3)), data=WeatherProbs,
                      bounds=c(0,1), reverse=TRUE)
+
+## Replicate Jose, Nau, & Winkler, 2009, Figure 1
+r2 <- seq(0, .6, .05)
+r <- cbind(.4, r2, .6 - r2)
+j <- rep(1, length(r2))
+quad <- calcscore(j ~ r, fam="pow", param=2, reverse=TRUE)
+quadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1), reverse=TRUE)
+rankquad <- calcscore(j ~ r, fam="pow", param=2, ordered=TRUE,
+reverse=TRUE)
+rankquadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1),
+ordered=TRUE, reverse=TRUE)
+## Different quadratic scaling:
+plot(r2, quad, ylim=c(-2,1), type='l')
+lines(r2, quadbase, lty=2)
+lines(r2, rankquad, lty=3, type='o', pch=22)
+lines(r2, rankquadbase, lty=4, type='o', pch=2)
 }
