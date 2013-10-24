@@ -50,7 +50,7 @@ the reliability diagram for 3-category probability forecasts.
 \examples{
 data("WeatherProbs")
 
-## Brier score for temperature forecasts
+## Brier score for temperature forecasts (first 500 rows)
 ## (Warning arises because some forecast rows don't sum to 1.)
 res <- calcscore(tcat ~ tblw + tnrm + tabv, data=WeatherProbs,
                  bounds=c(0,1))
@@ -68,7 +68,7 @@ avgbrier <- with(WeatherProbs, tapply(res, stn, mean))
 avgobrier <- with(WeatherProbs, tapply(res2, stn, mean))
 avgsph <- with(WeatherProbs, tapply(res3, stn, mean))
 
-## Average Brier vs average ordinal Brier
+## Conclusions vary across Brier and ordinal Brier scores
 plot(avgbrier, avgobrier, pch=20, xlab="Brier", ylab="Ordinal Brier")
 }
 \keyword{datasets}

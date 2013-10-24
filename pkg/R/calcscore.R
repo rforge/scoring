@@ -65,6 +65,10 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     ## Check beta family params
     if(fam=="beta"){
         if(any(param <= -1)) stop("Beta family parameters must be greater than -1")
+        if(ordered){
+            ordered <- FALSE
+            warning("ordered=TRUE has no impact on beta family scores.")
+        }
     }
     ## If forecast is numeric, add 1 to outcome
     if(NCOL(forecast)==1){

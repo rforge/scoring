@@ -34,5 +34,5 @@ test_that('manyalt', {
   r <- cbind(.4, r2, .6 - r2)
   j <- rep(1, length(r2))
   quad <- calcscore(j ~ r, fam="pow", param=2, bounds=c(-1,1), reverse=TRUE)
-  expect_true(all(quad >= -1) & (quad <= 1))
+  expect_true(all((quad >= -1) & (quad <= 1)))
 })

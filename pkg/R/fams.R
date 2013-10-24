@@ -74,34 +74,45 @@ function(p, d, param, ...){
 
 ## NB Beta family param is just for a 2-alternative rule,
 ##    while pow and sph are for multi-alternatives.
-ordwrap <- function(p, d, param, fam){
+ordwrap <- function(data, param, fam){
     ## Wrapper to get ordinal score out of any other family
-    ## (See Jose, Nau, Winkler, 2009, Management Science, Eq (6) + (13))    
-    p1 <- cumsum(p)
+    ## (See Jose, Nau, Winkler, 2009, Management Science, Eq (6) + (13))
+    nalts <- ncol(data) - 1
+    p <- data[,1:nalts]
+    p1 <- t(apply(p, 1, cumsum))
+    p1 <- p1[,1:(ncol(p1) - 1)]
     p2 <- 1 - p1
-    dvec <- rep(2, length(p))
-    dvec[d:length(dvec)] <- 1
-    tmpdat <- data.frame(p1, p2, dvec)
-    tmpdat <- tmpdat[1:(nrow(tmpdat)-1),]
+    d <- data[,(nalts + 1)]
+    dmat <- matrix(2, nrow(p1), ncol(p1))
+    tmpd <- cbind(d, dmat)
+    dmat <- t(apply(dmat, 1, function(x){
+              x[(x[1]+1):length(x)] <- 1
+              x[2:length(x)]}))
 
     ## Cumulative baselines for pow and sph
-    if(fam == "beta"){
-        tmpscore <- calcscore(dvec ~ p1 + p2, data = tmpdat, fam = fam,
-                              param = param)
-    } else {
-        if(length(param) > 1) Q <- cumsum(param[2:length(param)])
-
-        ## FIXME: Modify calcscore to accept different param values
-        ##        for each forecast row, then this loop can be removed.
-        tmpscore <- rep(NA, nrow(tmpdat))
-        for(i in 1:nrow(tmpdat)){
-            if(length(param) > 1) tmpparam <- c(param[1], Q[i], 1 - Q[i])
-            else tmpparam <- param
-            tmpscore[i] <- calcscore(dvec ~ p1 + p2, data = tmpdat[i,],
-                                     fam = fam,
-                                     param = tmpparam)
-        }
+    if(length(param) > 1){
+        Q <- cumsum(param[2:length(param)])
     }
 
-    sum(tmpscore)
+    ## FIXME: Modify calcscore to accept different param values
+    ##        for each forecast row, then this loop can be removed.
+    ## TODO: This assumes a single family parameter (ok for pow and sph),
+    ##       followed by baselines.  Greater flexibility will be allowed
+    ##       if baselines are separate argument from family parameters.
+    runscore <- rep(0, nrow(data))
+    for(i in 1:ncol(p1)){
+        if(length(param) > 1){
+            tmpparam <- c(param[1], Q[i], 1 - Q[i])
+        } else {
+            tmpparam <- param
+        }
+        tmpdat <- cbind(p1[,i], p2[,i], dmat[,i])
+
+        tmpscore <- scoreitems(tmpparam, tmpdat, fam = fam,
+                               ordered = FALSE)
+
+        runscore <- runscore + tmpscore
+    }
+
+    runscore
 }
