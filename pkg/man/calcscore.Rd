@@ -12,11 +12,11 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
 }
 \usage{
 \method{calcscore}{formula}(object, fam="pow", param, data, bounds=NULL,
-                  reverse=FALSE, ordered=FALSE, ...)
+          reverse=FALSE, ordered=FALSE, ...)
 
 \method{calcscore}{default}(object, outcome, fam="pow",
-                  param=c(2,rep(1/max(2,NCOL(forecast)),max(2,NCOL(forecast)))),
-                  bounds=NULL, reverse=FALSE, ordered=FALSE, ...)
+          param=c(2,rep(1/max(2,NCOL(forecast)),max(2,NCOL(forecast)))),
+          bounds=NULL, reverse=FALSE, ordered=FALSE, ...)
 }
 \arguments{
   \item{object}{an object of class  "formula", of the form
@@ -24,7 +24,7 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
           with observations in rows and
           forecast alternatives in columns.  For two-alternative forecasts, this
           can be a vector reflecting forecasts for one alternative.}
-  \item{outcome}{a vector of outcomes.  For each row of the
+  \item{outcome}{a vector of outcomes (used if \code{object} is a matrix).  For each row of the
           \code{forecast} matrix, \code{outcome} should contain an entry
           reflecting the column number associated with the event that occurred.}	
   \item{fam}{scoring rule family. \code{pow} (default) is the power
@@ -36,7 +36,7 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
     parameter gamma and optionally \code{NCOL(forecast)} baseline
                   parameters (see details).}
   \item{data}{an optional data frame or list containing the
-          variables in the model.  If not found in \code{data}, the
+          variables in the formula.  If not found in \code{data}, the
           variables are taken from the environment from which
 	  \code{calcscore} is called.}
   \item{bounds}{a vector of length 2 corresponding to the desired
@@ -53,7 +53,7 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
   \item{...}{Additional arguments.}
 }
 \details{
-  The formula is of the form \code{outcome ~ forecast}, where \code{forecast} describes the column(s) containing forecasts associated with the possible outcomes.  Multiple columns are separated by \code{+}.  \code{outcome} is always a vector describing the outcome associated with each forecast.  These should be coded 1, 2, ..., reflecting the column associated with the outcome (see examples).
+  The formula is of the form \code{outcome ~ forecast}, where \code{forecast} describes the column(s) containing forecasts associated with the possible outcomes.  Multiple columns are separated by \code{+}.  \code{outcome} is always a vector describing the outcome associated with each forecast.  It should be coded 1, 2, ..., reflecting the column associated with the outcome (see examples).
 
 For events with only two alternatives, one can take a shortcut and
 supply only forecasts associated with a single outcome (if baseline
@@ -62,23 +62,32 @@ parameter for only that outcome should also be supplied).  In this case, the \co
 
 If \code{ordered=TRUE}, an "ordered" scoring rule is obtained using the
 strategy proposed by Jose, Nau, & Winkler (2009).  These ordered rules
-are most sensibly used in tandem with families \code{pow} and \code{sph}.
+are only useful when the number of forecasted alternatives is greater
+than two (i.e., when one uses family \code{pow} or \code{sph}).
 
 If baseline parameters are not supplied for families \code{pow} or
-\code{sph}, then the parameters are taken to be equal across all alternatives.
+\code{sph}, then the parameters are taken to be equal across all
+alternatives (though the natural scaling of the scoring rule differs
+depending on whether or not one explicitly supplies equal baseline
+parameters).
 
 When the \code{bounds} argument is supplied, the code attempts to scale the scores so that the maximum score is \code{bounds[2]} and the minimum score is \code{bounds[1]}.  This scaling cannot be accomplished when the scoring rule allows scores of infinity (the log score is the most common case here).  If \code{reverse=TRUE}, the bounds are applied after the reversal (so that the supplied lower bound reflects the worst score and upper bound reflects the best score).
 }
 
-\note{The beta family was originally proposed by Buja et al. (2005); the power and pseudospherical families with baseline are described by Jose et al. (2009).  A discussion of choosing specific rules from these families is provided by Merkle and Steyvers (2013).
+\note{The beta family was originally proposed by Buja et al.\ (2005); the power and pseudospherical families with baseline are described by Jose et al.\ (2009).  A discussion of choosing specific rules from these families is provided by Merkle and Steyvers (2013).
 
 Some notable special cases of these families are:
 
 Beta family: Log score when parameters are (0,0); Brier score when parameters are (1,1).
 
-Power family with baseline parameters all equal (to 1/(number of alternatives)): The family approaches the log score as gamma goes to 1 (but the family is undefined for gamma=1).  One obtains the Brier score for gamma=2.
+Power family with baseline parameters all equal (to 1/(number of
+alternatives)): The family approaches the log score as gamma goes to 1
+(but the family is undefined for gamma=1).  The Brier score is obtained
+for gamma=2.
 
-Pseudospherical family with baseline parameters all equal: The family approaches the log score as gamma goes to 1 (but the family is undefined for gamma=1).  One obtains the spherical score for gamma=2.
+Pseudospherical family with baseline parameters all equal: The family
+approaches the log score as gamma goes to 1 (but the family is undefined
+for gamma=1).  The spherical score is obtained for gamma=2.
 
 }
 \value{
@@ -138,7 +147,8 @@ j <- rep(1, length(r2))
 quad <- calcscore(j ~ r, fam="pow", param=2, bounds=c(-1,1), reverse=TRUE)
 quadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1), reverse=TRUE)
 rankquad <- calcscore(j ~ r, fam="pow", param=2, ordered=TRUE, reverse=TRUE)
-rankquadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1), ordered=TRUE, reverse=TRUE)
+rankquadbase <- calcscore(j ~ r, fam="pow", param=c(2,.3,.6,.1), ordered=TRUE,
+                          reverse=TRUE)
 plot(r2, quad, ylim=c(-2,1), type="l", ylab="Quadratic scores")
 lines(r2, quadbase, lty=2)
 lines(r2, rankquad, type="o", pch=22)
@@ -148,7 +158,8 @@ lines(r2, rankquadbase, type="o", pch=2)
 sph <- calcscore(j ~ r, fam="sph", param=2, reverse=TRUE, bounds=c(-1.75,1))
 sphbase <- calcscore(j ~ r, fam="sph", param=c(2,.3,.6,.1), reverse=TRUE)
 ranksph <- calcscore(j ~ r, fam="sph", param=2, ordered=TRUE, reverse=TRUE)
-ranksphbase <- calcscore(j ~ r, fam="sph", param=c(2,.3,.6,.1), ordered=TRUE, reverse=TRUE)
+ranksphbase <- calcscore(j ~ r, fam="sph", param=c(2,.3,.6,.1), ordered=TRUE,
+                         reverse=TRUE)
 plot(r2, sph, ylim=c(-1,.6), type="l", ylab="Spherical scores")
 lines(r2, sphbase, lty=2)
 lines(r2, ranksph, type="o", pch=22)
@@ -158,7 +169,8 @@ lines(r2, ranksphbase, type="o", pch=2)
 lg <- calcscore(j ~ r, fam="pow", param=1.001, reverse=TRUE)
 lgbase <- calcscore(j ~ r, fam="pow", param=c(1.001,.3,.6,.1), reverse=TRUE)
 ranklg <- calcscore(j ~ r, fam="pow", param=1.001, ordered=TRUE, reverse=TRUE)
-ranklgbase <- calcscore(j ~ r, fam="pow", param=c(1.001,.3,.6,.1), ordered=TRUE, reverse=TRUE)
+ranklgbase <- calcscore(j ~ r, fam="pow", param=c(1.001,.3,.6,.1),
+                        ordered=TRUE, reverse=TRUE)
 plot(r2, lg, ylim=c(-2,1), type="l", ylab="Log scores")
 lines(r2, lgbase, lty=2)
 lines(r2, ranklg, type="o", pch=22)

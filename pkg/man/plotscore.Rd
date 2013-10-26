@@ -4,10 +4,11 @@
 Plot a Two-Alternative Scoring Rule
 }
 \description{
-Given parameters of a two-alternative scoring rule family, plot the hypothetical scores that would be obtained for each forecast/outcome combination.
+Given parameters for a two-alternative scoring rule, plot the hypothetical scores that would be obtained for each forecast/outcome combination.
 }
 \usage{
-plotscore(param = c(2, 0.5), fam = "pow", bounds, reverse = FALSE, legend = TRUE, ...)
+plotscore(param = c(2, 0.5), fam = "pow", bounds, reverse = FALSE,
+          legend = TRUE, ...)
 }
 \arguments{
   \item{param}{Numeric vector of length 2, containing the parameters for

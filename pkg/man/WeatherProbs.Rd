@@ -50,14 +50,14 @@ the reliability diagram for 3-category probability forecasts.
 \examples{
 data("WeatherProbs")
 
-## Brier score for temperature forecasts (first 500 rows)
+## Brier score for temperature forecasts
 ## (Warning arises because some forecast rows don't sum to 1.)
 res <- calcscore(tcat ~ tblw + tnrm + tabv, data=WeatherProbs,
                  bounds=c(0,1))
 
-## Ordinal Brier score for temperature forecasts
+## Ordered Brier score for temperature forecasts
 res2 <- calcscore(tcat ~ tblw + tnrm + tabv, data=WeatherProbs,
-                 bounds=c(0,1), ordered=TRUE)
+                  bounds=c(0,1), ordered=TRUE)
 
 ## Spherical score for temperature forecasts
 res3 <- calcscore(tcat ~ tblw + tnrm + tabv, data=WeatherProbs,
