@@ -25,20 +25,25 @@ calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, rever
     forecast <- mf[,2:ncol(mf)]
     if(missing(param)) param <- c(2, rep(1/max(2,NCOL(forecast)), max(2,NCOL(forecast))))
 
-    do.call("calcscore.default", list(object=forecast, outcome=outcome, fam=fam, param=param, bounds=bounds, reverse=reverse, ordered=ordered))
+    do.call("calcscore.default", list(object=forecast, outcome=outcome, fam=fam, param=param, bounds=bounds, reverse=reverse, ordered=ordered, ...=...))
 
 }
             
 calcscore.default <-
 function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2,NCOL(forecast)))), bounds=NULL, reverse=FALSE, ordered=FALSE, ...){
 
-    ## For deprecated scaling argument
     dots <- list(...)
 
+    ## For deprecated scaling argument
     if("scaling" %in% names(dots)){
       if(dots$scaling) bounds <- c(0,1)
     }
-  
+
+    ## For Brier score decompositions
+    if("decomp" %in% names(dots)){
+        decomp <- dots$decomp
+    }
+
     ## Error checks:
     ## Make sure outcome is a vector, then convert it to numeric
     if(!(NROW(outcome)==1 | NCOL(outcome)==1)) stop("outcome must be a vector, not a matrix.\n")
