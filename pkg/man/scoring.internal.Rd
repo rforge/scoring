@@ -1,4 +1,5 @@
 \name{scoring.internal}
+\alias{bdecomp}
 \alias{betafam}
 \alias{powfam}
 \alias{sphfam}

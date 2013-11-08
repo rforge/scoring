@@ -1,4 +1,5 @@
 export(
+    "brierscore",
     "calcscore",
     "calcscore.formula",
     "calcscore.default",
