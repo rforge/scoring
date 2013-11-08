@@ -3,6 +3,9 @@ Changes in Version 0.5
     o Added support for scoring rules that are sensitive
       to distance; see Jose et al, 2009, Management Science
 
+    o Added convenience function to calculate Brier scores that
+      also returns mean scores and Brier score decompositions.
+
     o Fixed bug in scalescores(), whereby a lower bound < 0 and
       reverse=TRUE resulted in incorrect scaling.
 

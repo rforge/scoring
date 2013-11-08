@@ -42,6 +42,14 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     ## For Brier score decompositions
     if("decomp" %in% names(dots)){
         decomp <- dots$decomp
+        if("group" %in% names(dots)){
+            group <- dots$group
+        } else {
+            group <- rep(1, NROW(object))
+        }
+    } else {
+        decomp <- FALSE
+        group <- 1
     }
 
     ## Error checks:
@@ -118,7 +126,13 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(NCOL(forecast)==1) forecast <- cbind(1-forecast, forecast)
     datmat <- cbind(forecast, outcome)
     ## Obtain unscaled scores
-    sc <- scoreitems(param, datmat, fam, ordered)
+    sc <- scoreitems(param, datmat, fam, ordered, decomp, group)
+
+    ## If decomp=TRUE, sc is a list:
+    if(decomp){
+        sclist <- sc
+        sc <- sc$rawscores
+    }
 
     ## Scale if desired
     if(!is.null(bounds)){
@@ -148,5 +162,11 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(any(is.na(sc))){
         stop("Problem with score calculation.  Ensure parameter values are valid.")
     }
+
+    if(decomp){
+        sclist$rawscores <- sc
+        sc <- sclist
+    }
+    
     sc
 }
