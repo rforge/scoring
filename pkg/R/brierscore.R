@@ -20,7 +20,7 @@ brierscore <- function(object, data, group=NULL, decomp=FALSE, bounds=NULL, reve
     ## avg Briers
     if(decomp==FALSE & !is.null(group)){
         mnbrier <- tapply(scores, group, mean)
-        scores <- list(rawscores=scores, mnbrier=mnbrier)
+        scores <- list(rawscores=scores, mnbrier=as.numeric(mnbrier))
     }
 
     scores

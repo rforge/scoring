@@ -1,4 +1,4 @@
-scoreitems <- function(param, data, fam, ordered, decomp, group){
+scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL){
     if(ordered){
         item.res <- ordwrap(data, param, fam)
     } else {

@@ -27,4 +27,8 @@ test_that('twoalt', {
   scores.man2 <- 1 - with(WorldEvents, (forecast * answer + (1 - forecast)*(1 - answer))/
                       sqrt(forecast^2 + (1-forecast)^2))
   expect_equal(scores3, scores.man2)
+
+  scores.brier <- brierscore(answer ~ forecast, data=WorldEvents)
+  expect_is(scores.brier, 'numeric')
+  expect_equal(scores2, scores.brier)
 })
