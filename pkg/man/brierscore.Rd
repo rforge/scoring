@@ -35,7 +35,7 @@ If \code{decomp=TRUE} or \code{group} is supplied, the function returns
 }
 \value{
 Depending on input arguments, \code{brierscore} may return an object of
-  class \code{numeric} containing raw Brire scores.  It may also return
+  class \code{numeric} containing raw Brier scores.  It may also return
   a list containing the objects below.
   
 \item{rawscores}{an object of class \code{numeric} containing raw Brier

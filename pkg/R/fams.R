@@ -116,3 +116,8 @@ ordwrap <- function(data, param, fam){
 
     runscore
 }
+
+
+logfam <- function(p, d, ...){
+    -log(p[d])
+}
