@@ -31,4 +31,8 @@ test_that('twoalt', {
   scores.brier <- brierscore(answer ~ forecast, data=WorldEvents)
   expect_is(scores.brier, 'numeric')
   expect_equal(scores2, scores.brier)
+
+  scores.grp.brier <- brierscore(answer ~ forecast, data=WorldEvents, group="forecast")$mnbrier
+  expect_equal(scores.grp.brier, tapply(scores2, WorldEvents$forecast, mean))
+  
 })

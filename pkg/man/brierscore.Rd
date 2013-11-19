@@ -46,7 +46,15 @@ Depending on input arguments, \code{brierscore} may return an object of
   decompositions and mean Brier scores for each unique value of \code{group}.}
 }
 \references{
-Yates, Brier, etc
+Brier, G. W. (1950).  Verification of forecasts expressed in terms of
+probability.  \emph{Monthly Weather Review, 78},  1-3.
+
+Murphy, A. H. (1973).  A new vector partition of the probability score.
+\emph{Journal of Applied Meteorology, 12}, 595-600.
+
+Yates, J. F. (1982).  External correspondence: Decompositions of the
+mean probability score.  \emph{Organizational Behavior and Human
+  Performance, 30}, 132-156.
 }
 \author{
 Ed Merkle

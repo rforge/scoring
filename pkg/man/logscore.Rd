@@ -42,7 +42,12 @@ Depending on input arguments, \code{logscore} may return an object of
   scores for each unique value of \code{group}.}
 }
 \references{
-TODO
+Toda, M. (1963).  Measurement of subjective probability distributions. 
+  ESD-TDR-63-407, Decision Sciences Laboratory, L. G. Hanscom Field,
+  Bedford, Mass.
+
+Shuford, E. H., Albert, A., & Massengill, H. E. (1966).  Admissible
+probability measurement procedures.  \emph{Psychometrika, 31}, 125-145.
 }
 \author{
 Ed Merkle
