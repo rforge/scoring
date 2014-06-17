@@ -85,8 +85,13 @@ ordwrap <- function(data, param, fam){
     d <- data[,(nalts + 1)]
     dmat <- matrix(2, nrow(p1), ncol(p1))
     tmpd <- cbind(d, dmat)
-    dmat <- t(apply(dmat, 1, function(x){
-              x[(x[1]+1):length(x)] <- 1
+    dmat <- t(apply(tmpd, 1, function(x){
+              ## Handle case where outcome is last
+              ## alternative (so R doesn't add to
+              ##              the vector)
+              if(x[1] < length(x)){
+                  x[(x[1]+1):length(x)] <- 1
+              }
               x[2:length(x)]}))
 
     ## Cumulative baselines for pow and sph

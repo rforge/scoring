@@ -1,7 +1,13 @@
+Changes in Version 0.51
+
+    o Fixed a bug in calcscore() when ordered=TRUE, whereby
+      forecasts associated with outcomes in the final category
+      were scored incorrectly.
+
 Changes in Version 0.5
 
     o Added support for scoring rules that are sensitive
-      to distance; see Jose et al, 2009, Management Science
+      to distance; see Jose et al, 2009, Management Science.
 
     o Added Brier score convenience function that also returns
       mean scores and Brier score decompositions.  Also added
