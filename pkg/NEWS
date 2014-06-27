@@ -1,4 +1,4 @@
-Changes in Version 0.51
+Changes in Version 0.5-1
 
     o Fixed a bug in calcscore() when ordered=TRUE, whereby
       forecasts associated with outcomes in the final category
