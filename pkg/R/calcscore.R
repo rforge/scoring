@@ -95,12 +95,14 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
 
     ## Number of alternatives and number of parameters
     nalts <- ifelse(NCOL(forecast) <= 2, 2, NCOL(forecast))
+    ## TODO: change below to allow for unique rule per row
     npars <- length(param)
 
     ## For fam=pow or sph, check to ensure that baseline params sum to 1.
     if(fam %in% c("pow","sph")){
         ## If length(param)==1, then assume this is a rule without
         ## a baseline.
+        ## TODO: change to allow for unique rule per row
         if(npars > 1){
             if(sum(param[2:npars]) != 1){
                 ## If two alternatives and one baseline, take
@@ -109,7 +111,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
                     if(NCOL(forecast)==1){
                         param <- c(param[1], 1-param[2], param[2])
                     } else {
-                        warning("Only one baseline parameter supplied. This parameter is assumed to correspond to alternative associated with the first column of forecasts.\n")
+                        warning("Only one baseline parameter supplied. This parameter is assumed to correspond to the alternative associated with the first column of forecasts.\n")
                         param <- c(param, 1-param[2])
                     }
                 } else {
@@ -126,6 +128,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(NCOL(forecast)==1) forecast <- cbind(1-forecast, forecast)
     datmat <- cbind(forecast, outcome)
     ## Obtain unscaled scores
+    ## TODO change to allow for unique rule per row
     sc <- scoreitems(param, datmat, fam, ordered, decomp, group)
 
     ## If decomp=TRUE, sc is a list:
@@ -136,8 +139,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
 
     ## Scale if desired
     if(!is.null(bounds)){
-        ## Aug 26 2013: scoreitems appears to handle multiple alts
-        ## 2-alternative examples yield same results as before
+        ## TODO Modify; If unique rule per row, this may take awhile?
         scalefactor <- scalescores(param, fam, ordered, nalts)
 
         lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
