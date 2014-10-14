@@ -174,7 +174,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(reverse & is.null(bounds)) sc <- -sc
 
     if(any(is.na(sc))){
-        stop("Problem with score calculation.  Ensure parameter values are valid.")
+        warning("Some scores are NA. This may be due to missing data in your forecasts or outcomes, or an ill-defined param argument.")
     }
 
     if(decomp){
