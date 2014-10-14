@@ -95,31 +95,43 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
 
     ## Number of alternatives and number of parameters
     nalts <- ifelse(NCOL(forecast) <= 2, 2, NCOL(forecast))
-    ## TODO: change below to allow for unique rule per row
-    npars <- length(param)
+    if(class(param)=="numeric") param <- matrix(param, 1, length(param))
+    npars <- NCOL(param)
+    nparrows <- NROW(param)
 
     ## For fam=pow or sph, check to ensure that baseline params sum to 1.
     if(fam %in% c("pow","sph")){
         ## If length(param)==1, then assume this is a rule without
         ## a baseline.
-        ## TODO: change to allow for unique rule per row
-        if(npars > 1){
-            if(sum(param[2:npars]) != 1){
+        if(npars > 1 & nparrows == 1){
+            if(sum(param[1, 2:npars]) != 1){
                 ## If two alternatives and one baseline, take
                 ## complement
                 if(npars==2){
                     if(NCOL(forecast)==1){
-                        param <- c(param[1], 1-param[2], param[2])
+                        param <- matrix(c(param[1,1], 1-param[1,2], param[1,2]),
+                                        1, 3)
                     } else {
                         warning("Only one baseline parameter supplied. This parameter is assumed to correspond to the alternative associated with the first column of forecasts.\n")
-                        param <- c(param, 1-param[2])
+                        param <- matrix(c(param, 1-param[1,2]), 1, 3)
                     }
                 } else {
                     if(npars != (nalts+1)) stop("Length of param is incorrect.\n")
                     warning("Baseline parameters were scaled to sum to 1.")
-                    param[2:npars] <- param[2:npars]/sum(param[2:npars])
-                }
-            }
+                    param[1, 2:npars] <- param[1, 2:npars]/sum(param[1, 2:npars])
+                }  ## npars==2
+            }  ## sum != 1
+            param <- t(matrix(param, ncol(param), noutcomes))
+            fam <- rep(fam, noutcomes)
+        } else if(npars == 1 & nparrows == 1){
+            param <- matrix(rep(param, noutcomes), noutcomes, 1)
+            fam <- rep(fam, noutcomes)
+        } else if(npars > 1 & nparrows == noutcomes){
+            ## Ensure it is a matrix
+            param <- as.matrix(param)
+            if(length(fam)==1) fam <- rep(fam, noutcomes)
+        } else {
+            stop("Problem with param matrix.  Check that number of param rows equal number of forecast rows.")
         }
     }
     ## END ERROR CHECKING
@@ -128,7 +140,6 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(NCOL(forecast)==1) forecast <- cbind(1-forecast, forecast)
     datmat <- cbind(forecast, outcome)
     ## Obtain unscaled scores
-    ## TODO change to allow for unique rule per row
     sc <- scoreitems(param, datmat, fam, ordered, decomp, group)
 
     ## If decomp=TRUE, sc is a list:
@@ -139,7 +150,10 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
 
     ## Scale if desired
     if(!is.null(bounds)){
-        ## TODO Modify; If unique rule per row, this may take awhile?
+        ## TODO Apply scalescores() to each unique scoring rule
+        if(nparrows > 1){
+            stop("Scaling unavailable when the scoring rule differs by row.")
+        }
         scalefactor <- scalescores(param, fam, ordered, nalts)
 
         lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
@@ -151,15 +165,13 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
             sc <- (sc - scalefactor[1])/diff(scalefactor)
         }
         sc <- lbound + (ubound - lbound)*sc
-    }
 
-    if(reverse){
-        if(is.null(bounds)){
-            sc <- -sc
-        } else {
+        if(reverse){
             sc <- lbound + ubound - sc
         }
     }
+
+    if(reverse & is.null(bounds)) sc <- -sc
 
     if(any(is.na(sc))){
         stop("Problem with score calculation.  Ensure parameter values are valid.")

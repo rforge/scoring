@@ -34,7 +34,9 @@ Given parameters of a scoring rule family, calculate scores for probabilistic fo
     containing the scoring rule family parameters.
     For other families, a numeric vector containing first the family
     parameter gamma and optionally \code{NCOL(forecast)} baseline
-                  parameters (see details).}
+                  parameters (see details).  Alternatively, a matrix may
+          be supplied containing unique family parameters for each
+          forecast row.}
   \item{data}{an optional data frame or list containing the
           variables in the formula.  If not found in \code{data}, the
           variables are taken from the environment from which
@@ -70,6 +72,9 @@ If baseline parameters are not supplied for families \code{pow} or
 alternatives (though the natural scaling of the scoring rule differs
 depending on whether or not one explicitly supplies equal baseline
 parameters).
+
+If desired, a unique scoring rule can be applied to each row of the
+forecast matrix: the \code{param} argument can be supplied as a matrix.
 
 When the \code{bounds} argument is supplied, the code attempts to scale the scores so that the maximum score is \code{bounds[2]} and the minimum score is \code{bounds[1]}.  This scaling cannot be accomplished when the scoring rule allows scores of infinity (the log score is the most common case here).  If \code{reverse=TRUE}, the bounds are applied after the reversal (so that the supplied lower bound reflects the worst score and upper bound reflects the best score).
 }

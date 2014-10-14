@@ -1,3 +1,8 @@
+Changes in Version 0.6
+
+    o Scoring family parameters can now be specified by row,
+      allowing for a unique scoring rule for each forecast.
+
 Changes in Version 0.5-1
 
     o Fixed a bug in calcscore() when ordered=TRUE, whereby
