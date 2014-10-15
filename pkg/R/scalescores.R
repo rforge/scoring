@@ -48,7 +48,7 @@ function(pars, fam="pow", ordered, nalts){
           fore <- out <- rep(0,nalts)
           fore[minbase] <- 1
 
-          tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore), fam=fam, param=pars, ordered=ordered)
+          tmpsc <- calcscore(c(minbase,maxbase) ~ rbind(fore,fore,deparse.level=0), fam=fam, param=pars, ordered=ordered)
       
           xplier <- tmpsc #c(scmin, scmax)
       } else {

@@ -95,19 +95,18 @@ ordwrap <- function(data, param, fam){
               x[2:length(x)]}))
 
     ## Cumulative baselines for pow and sph
-    if(length(param) > 1){
-        Q <- cumsum(param[2:length(param)])
+    if(ncol(param) > 1){
+        Q <- t(apply(param, 1, function(x) cumsum(x[2:length(x)])))
     }
 
-    ## FIXME: Modify calcscore to accept different param values
-    ##        for each forecast row, then this loop can be removed.
     ## TODO: This assumes a single family parameter (ok for pow and sph),
     ##       followed by baselines.  Greater flexibility will be allowed
     ##       if baselines are separate argument from family parameters.
+
     runscore <- rep(0, nrow(data))
     for(i in 1:ncol(p1)){
-        if(length(param) > 1){
-            tmpparam <- c(param[1], Q[i], 1 - Q[i])
+        if(ncol(param) > 1){
+            tmpparam <- cbind(param[,1], Q[,i], 1 - Q[,i])
         } else {
             tmpparam <- param
         }

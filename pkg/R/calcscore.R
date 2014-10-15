@@ -152,22 +152,23 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(!is.null(bounds)){
         ## TODO Apply scalescores() to each unique scoring rule
         if(nparrows > 1){
-            stop("Scaling unavailable when the scoring rule differs by row.")
-        }
-        scalefactor <- scalescores(param, fam, ordered, nalts)
-
-        lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
-        ubound <- ifelse(is.na(bounds[2]), 1 + lbound, bounds[2])
-
-        if(fam=="beta"){
-            sc <- sc/scalefactor
+            warning("Scaling unavailable when the scoring rule differs by row.")
         } else {
-            sc <- (sc - scalefactor[1])/diff(scalefactor)
-        }
-        sc <- lbound + (ubound - lbound)*sc
+            scalefactor <- scalescores(param[1,], fam[1], ordered, nalts)
 
-        if(reverse){
-            sc <- lbound + ubound - sc
+            lbound <- ifelse(is.na(bounds[1]), 0, bounds[1])
+            ubound <- ifelse(is.na(bounds[2]), 1 + lbound, bounds[2])
+
+            if(fam[1]=="beta"){
+                sc <- sc/scalefactor
+            } else {
+                sc <- (sc - scalefactor[1])/diff(scalefactor)
+            }
+            sc <- lbound + (ubound - lbound)*sc
+
+            if(reverse){
+                sc <- lbound + ubound - sc
+            }
         }
     }
 
