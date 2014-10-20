@@ -1,4 +1,4 @@
-"glmscore" <- function(y, X, fam, param)
+"glmscore" <- function(y, X, fam, param, usehess=FALSE)
     {
         discrep <- function(beta, y, X, fam, param){
             preds <- plogis(X %*% beta)
@@ -13,17 +13,22 @@
 
         if(fam=="beta"){
             grad <- betagrad
+            if(usehess){
+              hess <- betahess
+            } else {
+              hess <- NULL
+            }
         } else {
             grad <- NULL
         }
         beta <- nlminb(betastart, discrep, y=y, X=X, fam=fam,
                        param=param, lower=-10, upper=10,
-                       gradient=grad)
+                       gradient=grad, hessian=hess)
 
         beta
     }
 
-betagrad <- function(beta, y, X, param, ...){
+betagrad <- function(beta, y, X, fam, param){
     preds <- plogis(X %*% beta)
     tmp <- (y - preds) * preds^(param[1]-1) *
            (1 - preds)^(param[2]-1) *
@@ -32,6 +37,46 @@ betagrad <- function(beta, y, X, param, ...){
     -cbind(mean(tmp * X[,1]), mean(tmp * X[,2]))
 }
 
+betahess <- function(beta, y, X, fam, param){
+    preds <- plogis(X %*% beta)
+    omega <- preds^(param[1] - 1) * (1 - preds)^(param[2] -1)
+
+    hess <- matrix(0, ncol(X), ncol(X))
+    tmp <- omega * binomial()$mu.eta(X %*% beta)^2 -
+           (y - preds) * (param[1]*(1 - preds) - param[2]*preds)
+
+    for(i in 1:nrow(X)){
+      hess <- hess + tmp[i] * X[i,] %*% t(X[i,])
+    }
+
+    hess/nrow(X)
+}
+
+## not yet correct when baseline is included
+powgrad <- function(beta, y, X, fam, param){
+    ## first entry of q is for d=0, second entry for d=1
+    if(length(param)==1){
+      q <- c(1, 1)
+    } else {
+      q <- param[2:3]
+    }
+
+    preds <- plogis(X %*% beta)
+    dlogi <- binomial()$mu.eta(X %*% beta)
+    preds[y==0] <- 1-preds[y==0]
+
+    tmp1 <- ((preds)/q[(y+1)])^(param[1]-2) * (dlogi/q[(y+1)])
+    tmp2 <- ((preds)/q[(y+1)])^(param[1]-1) * (dlogi/q[(y+1)])
+    tmp3 <- ((1-preds)/q[(2-y)])^(param[1]-1) * (dlogi/q[(2-y)])
+
+    tmp4 <- tmp1 - (tmp2 + tmp3)
+    grad <- t(tmp4) %*% X
+
+    grad/nrow(X)
+}
+    
+
+    
 
 if(FALSE){
     library(scoring)
@@ -47,22 +92,30 @@ if(FALSE){
                                         probc),
                                   fam = "beta", param=c(0,0)))
 
+    X <- cbind(rep(1, length(finance$corr)), finance$probc)
+    m1bh <- betahess(m1b$par, finance$corr, X, c(0,0))
+    m1bvc <- solve(nrow(X) * m1bh)
+    m1vc <- vcov(m1)
+    all.equal(m1bvc, m1vc)
+    
     ## now brier score
-    m1c <- with(finance, glmscore(corr,
-                                  cbind(rep(1, length(corr)),
-                                        probc),
-                                  fam = "beta", param=c(1,1)))
+    m1c <- with(finance, glmscore(corr, X, fam = "beta", param=c(1,1),
+                                  usehess=FALSE))
+    ## S.E. for intercept blows up
+    solve(nrow(X) * betahess(m1c$par, finance$corr, X, c(1,1)))
 
-    m1d <- with(finance, glmscore(corr,
-                                  cbind(rep(1, length(corr)),
-                                        probc),
-                                  fam = "beta", param=c(11,15)))
+    ## match from power family?
+    m1c2 <- with(finance, glmscore(corr, X, fam = "pow", param=2))
 
+    ## strange score, difficult to converge due to flat parameter space
+    ## (and usehess=FALSE falsely converges)
+    m1d <- with(finance, glmscore(corr, X, fam = "beta", param=c(11,15), usehess=TRUE))
+
+    m1d <- with(finance, glmscore(corr, X, fam="beta", param=c(2.25, 3.75), usehess=TRUE))
+    
     ## Other family
-    m1e <- with(finance, glmscore(corr,
-                                  cbind(rep(1, length(corr)),
-                                        probc),
-                                  fam = "pow", param=c(4, .1)))
+    m1e <- with(finance, glmscore(corr, X, fam="pow", param=1.001))
+
     
     ## family could work like this, but doesn't seem
     ## tenable because this is not an exponential family
