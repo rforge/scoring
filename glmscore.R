@@ -22,8 +22,7 @@
             grad <- NULL
         }
         beta <- nlminb(betastart, discrep, y=y, X=X, fam=fam,
-                       param=param, lower=-10, upper=10,
-                       gradient=grad, hessian=hess)
+                       param=param, gradient=grad, hessian=hess)
 
         beta
     }
@@ -102,7 +101,7 @@ if(FALSE){
     m1c <- with(finance, glmscore(corr, X, fam = "beta", param=c(1,1),
                                   usehess=FALSE))
     ## S.E. for intercept blows up
-    solve(nrow(X) * betahess(m1c$par, finance$corr, X, c(1,1)))
+    solve(nrow(X) * betahess(m1c$par, finance$corr, X, NULL, c(1,1)))
 
     ## match from power family?
     m1c2 <- with(finance, glmscore(corr, X, fam = "pow", param=2))
@@ -113,7 +112,7 @@ if(FALSE){
 
     m1d <- with(finance, glmscore(corr, X, fam="beta", param=c(2.25, 3.75), usehess=TRUE))
     
-    ## Other family
+    ## log score from power family
     m1e <- with(finance, glmscore(corr, X, fam="pow", param=1.001))
 
     
