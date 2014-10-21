@@ -51,7 +51,7 @@ betahess <- function(beta, y, X, fam, param){
     hess/nrow(X)
 }
 
-## not yet correct when baseline is included
+## not yet working for non-1 baseline parameters
 powgrad <- function(beta, y, X, fam, param){
     ## first entry of q is for d=0, second entry for d=1
     if(length(param)==1){
@@ -61,20 +61,19 @@ powgrad <- function(beta, y, X, fam, param){
     }
 
     preds <- plogis(X %*% beta)
+    pred1 <- (1 - y) - (1 - 2*y)*preds
     dlogi <- binomial()$mu.eta(X %*% beta)
-    preds[y==0] <- 1-preds[y==0]
 
-    tmp1 <- ((preds)/q[(y+1)])^(param[1]-2) * (dlogi/q[(y+1)])
-    tmp2 <- ((preds)/q[(y+1)])^(param[1]-1) * (dlogi/q[(y+1)])
-    tmp3 <- ((1-preds)/q[(2-y)])^(param[1]-1) * (dlogi/q[(2-y)])
+    tmp1 <- -(1 - 2*y) * ((pred1)/q[(y+1)])^(param[1]-2) * (dlogi/q[(y+1)])
+    tmp2 <- ((preds)/q[2])^(param[1]-1) * (dlogi/q[2])
+    tmp3 <- ((1-preds)/q[1])^(param[1]-1) * (dlogi/q[1])
 
-    tmp4 <- tmp1 - (tmp2 + tmp3)
+    tmp4 <- tmp1 - (tmp2 - tmp3)
     grad <- t(tmp4) %*% X
 
     grad/nrow(X)
 }
     
-
     
 
 if(FALSE){
@@ -113,7 +112,7 @@ if(FALSE){
     m1d <- with(finance, glmscore(corr, X, fam="beta", param=c(2.25, 3.75), usehess=TRUE))
     
     ## log score from power family
-    m1e <- with(finance, glmscore(corr, X, fam="pow", param=1.001))
+    m1e <- with(finance, glmscore(corr, X, fam="pow", param=c(2, .2, .8)))
 
     
     ## family could work like this, but doesn't seem
