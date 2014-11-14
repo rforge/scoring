@@ -3,7 +3,7 @@
         discrep <- function(beta, y, X, fam, param){
             preds <- plogis(X %*% beta)
 
-            res <- calcscore(y ~ preds, fam = fam, param = param)
+            res <- calcscore(y ~ preds, fam = fam, param = param, bounds=c(0,1e3))
 
             mean(res)
         }
@@ -32,12 +32,13 @@
         beta
     }
 
-betagrad <- function(beta, y, X, fam, param){
+betagrad <- function(beta, y, X, fam, param, sc=FALSE){
     preds <- plogis(X %*% beta)
     tmp <- (y - preds) * preds^(param[1]-1) *
            (1 - preds)^(param[2]-1) *
            binomial()$mu.eta(X %*% beta)
 
+    if(sc) return(-cbind(tmp * X[,1], tmp * X[,2]))
     -cbind(mean(tmp * X[,1]), mean(tmp * X[,2]))
 }
 
@@ -56,6 +57,22 @@ betahess <- function(beta, y, X, fam, param){
 
     hess/nrow(X)
 }
+
+betapsi <- function(beta, y, X, fam, param){
+    preds <- plogis(X %*% beta)
+    psi <- -(y - preds) * preds^(param[1] - 1) * (1 - preds)^(param[2] - 1)
+    psiprime <- (param[1] - y) * preds^(param[1] - 1 - y) *
+                (1 - preds)^(param[2] - 1 + y) +
+                (param[2] - 1 + y) * preds^(param[1] - y) * (1 - preds)^(param[2] - 2 + y)
+    list(psi = psi, psiprime = psiprime)
+  }
+
+betavcov <- function(beta, y, X, fam, param){
+    tmp <- betagrad(beta, y, X, fam, param, sc=TRUE)
+    tmp2 <- betahess(beta, y, X, fam, param)
+
+    (1/nrow(X)) * solve(tmp2) %*% cov(tmp) %*% t(solve(tmp2))
+  }
 
 powgrad <- function(beta, y, X, fam, param){
     ## first entry of q is for d=0, second entry for d=1
@@ -106,7 +123,8 @@ powhess <- function(beta, y, X, fam, param){
     ## negative because this is how family is defined in scoring package
     -hess/nrow(X)
 }
-    
+
+
 if(FALSE){
     library(scoring)
     library(smdata)
@@ -126,12 +144,15 @@ if(FALSE){
     m1bvc <- solve(nrow(X) * m1bh)
     m1vc <- vcov(m1)
     all.equal(m1bvc, m1vc)
+    tmp <- betavcov(m1b$par, finance$corr, X, "beta", c(0,0))
     
     ## now brier score
     m1c <- with(finance, glmscore(corr, X, fam = "beta", param=c(1,1),
                                   usehess=FALSE))
-    ## S.E. for intercept blows up
+    ## S.E. for intercept blows up this way:
     solve(nrow(X) * betahess(m1c$par, finance$corr, X, NULL, c(1,1)))
+    ## but that's because it was wrong
+    betavcov(m1c$par, finance$corr, X, "beta", c(1,1))
 
     ## match from power family?
     m1c2 <- with(finance, glmscore(corr, X, fam = "pow", param=2))
@@ -142,8 +163,10 @@ if(FALSE){
     ## strange score, difficult to converge due to flat parameter space
     ## (and usehess=FALSE falsely converges)
     m1d <- with(finance, glmscore(corr, X, fam = "beta", param=c(11,15), usehess=TRUE))
+    betavcov(m1d$par, finance$corr, X, "beta", c(11,15))
 
     m1d <- with(finance, glmscore(corr, X, fam="beta", param=c(2.25, 3.75), usehess=TRUE))
+    betavcov(m1d$par, finance$corr, X, "beta", c(2.25,3.75))
     
     ## log score from power family
     m1e <- with(finance, glmscore(corr, X, fam="pow", param=c(4.3, .1, .9)))
