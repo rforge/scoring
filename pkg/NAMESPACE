@@ -1,8 +1,8 @@
 export(
     "brierscore",
     "calcscore",
-    "calcscore.formula",
-    "calcscore.default",
     "logscore",
     "plotscore",
     "sphscore")
+S3method("calcscore", "formula")
+S3method("calcscore", "default")

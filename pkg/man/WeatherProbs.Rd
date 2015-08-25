@@ -34,7 +34,7 @@ temperature or total precipitation for the entire valid period.
 }
 \source{
 Data were obtained from
-\url{http://www.cpc.ncep.noaa.gov/products/archives/short_range/}.
+http://www.cpc.ncep.noaa.gov/products/archives/short_range/ (see URL in references).
 }
 \references{
 See
