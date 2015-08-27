@@ -7,20 +7,26 @@ function(p, d, param, ...){
     ## Convert to vector form
     p <- p[2]
     d <- 1*d==2
+
+    eps <- 1e-4
     
     "betaint" <- function(p, d, param){
-      ifelse(d==p, 0,
+      ifelse(abs(d-p) < eps, 0,
              (d*(1-p) + (1-d)*p)*(p^(param[1]-1))*((1-p)^(param[2]-1)))
     }
 
     lbnd <- d*p
     ubnd <- d + (1-d)*p
 
-    res <- try(integrate(betaint, lbnd, ubnd, d=d, param=param, subdivisions=100)$value, silent=TRUE)
+    if(abs(ubnd - lbnd) < eps){
+      res <- 0
+    } else {
+      res <- try(integrate(betaint, lbnd, ubnd, d=d, param=param, subdivisions=100)$value, silent=TRUE)
 
-    if(inherits(res,"try-error")){
-        warning("A score evaluates to infinity.")
-        res <- Inf
+      if(inherits(res,"try-error")){
+          warning("A score evaluates to infinity.")
+          res <- Inf
+      }
     }
 
     res
