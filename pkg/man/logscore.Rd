@@ -8,7 +8,7 @@ Calculate Logarithmic Scores
 Calculate logarithmic scores and average logarithmic scores by a grouping variable.
 }
 \usage{
-logscore(object, data, group = NULL)
+logscore(object, data, group = NULL, reverse = FALSE)
 }
 
 \arguments{
@@ -19,14 +19,16 @@ logscore(object, data, group = NULL)
           variables are taken from the environment from which
 	  \code{calcscore} is called.}
   \item{group}{the name of a grouping variable within \code{data}, which
-  is used to calculate average log score by group.}
+    is used to calculate average log score by group.}
+  \item{reverse}{if \code{FALSE} (default), smaller scores imply better
+    forecasts.  If \code{TRUE}, larger scores imply better forecasts.}
 }
 \details{
 If \code{group} is supplied, the function returns
   a list (see value section).  Otherwise, the function returns a numeric
   vector containing the log score associated with each forecast.
 
-The arguments \code{bounds} and \code{reverse} are not available because
+The argument \code{bounds} is not available because
 the upper bound of the logarithmic score is infinity.  If one wants a
 bounded rule that approximates the logarithmic rule, try using
 \code{calcscore()} with \code{fam="pow"} and \code{param=1.001}.
@@ -59,8 +61,11 @@ Ed Merkle
 }
 \examples{
 data("WorldEvents")
-## Raw log scores
+## Raw log scores (0 best, infinity worst)
 log1 <- logscore(answer ~ forecast, data=WorldEvents)
+## Raw log scores (0 best, -infinity worst)
+log1 <- logscore(answer ~ forecast, data=WorldEvents,
+                 reverse = TRUE)
 ## Raw log scores plus group means
 log2 <- logscore(answer ~ forecast, data=WorldEvents,
                  group="forecaster")

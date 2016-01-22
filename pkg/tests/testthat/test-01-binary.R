@@ -15,7 +15,7 @@ test_that('twoalt', {
   expect_false(any(is.na(scores2)))
 
   scores.man <- with(WorldEvents, (forecast - answer)^2)
-  expect_equal(scores, scores.man)
+  expect_equal(round(scores, 7), round(scores.man, 7))
   expect_equal(scores2, scores.man)
 
   scores3 <- calcscore(answer ~ forecast, fam="sph",

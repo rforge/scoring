@@ -1,9 +1,9 @@
-logscore <- function(object, data, group=NULL){
+logscore <- function(object, data, group=NULL, reverse=FALSE){
 
     ## Machinery to get group variable, if specified
     ## FIXME Use | within a formula for groups?
     if(missing(data)) data <- environment(object)
-    args <- list(object=object, fam="log", data=data)
+    args <- list(object=object, fam="log", data=data, reverse=reverse)
 
     if(!is.null(group)){
         mf <- match.call()

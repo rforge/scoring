@@ -1,7 +1,10 @@
 Changes in Version 0.6
 
     o Scoring family parameters can now be specified by row,
-      allowing for a unique scoring rule for each forecast. 
+      allowing for a unique scoring rule for each forecast.
+
+    o logscore() now receives the reverse argument so that
+      scores go from -infty (worst) to 0 (best).
 
 Changes in Version 0.5-1
 

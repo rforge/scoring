@@ -1,4 +1,4 @@
 library("testthat")
 library("scoring")
 
-test_package("scoring")
+test_check("scoring")
