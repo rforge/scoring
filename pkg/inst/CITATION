@@ -5,11 +5,13 @@ citEntry(entry = "Article",
   author       = personList(as.person("Edgar C. Merkle"),
                    as.person("Mark Steyvers")),
   journal      = "Decision Analysis",
-  year         = "in press",
+  year         = "2013",
+  volume       = "10",
+  pages        = "292-304"
 
 
   textVersion  =
-  paste("Merkle, E. C. & Steyvers, M. (in press).",
+  paste("Merkle, E. C. & Steyvers, M. (2013).",
         "Choosing a strictly proper scoring rule.",
-        "Decision Analysis.")
+        "Decision Analysis, 10, 292-304.")
 )
