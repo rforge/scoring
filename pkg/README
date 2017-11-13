@@ -1,0 +1,3 @@
+scoring applies scoring rules to probabilistic forecasts and also performs weighted Brier decompositions, with the option to use resampling methods. Portions of the weighted Brier decomposition code are based on code that was included in:
+
+Merkle, E. C. & Hartman, R. (under revision). Weighted Brier score decompositions for topically heterogeneous forecasting tournaments.

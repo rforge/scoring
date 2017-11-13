@@ -9,7 +9,7 @@ Calculate Brier scores, average Brier scores by a grouping variable, and
 Brier score decompositions for two-alternative forecasts.
 }
 \usage{
-brierscore(object, data, group = NULL, decomp = FALSE, bounds = NULL, reverse = FALSE)
+brierscore(object, data, group = NULL, decomp = FALSE, bounds = NULL, reverse = FALSE, wt = NULL, decompControl = list())
 }
 
 \arguments{
@@ -27,11 +27,25 @@ brierscore(object, data, group = NULL, decomp = FALSE, bounds = NULL, reverse = 
     minimum and maximum Brier score, respectively.}
   \item{reverse}{if \code{FALSE} (default), smaller scores imply better
     forecasts.  If \code{TRUE}, larger scores imply better forecasts.}
+  \item{wt}{a vector of weights for computing a weighted Brier score. If \code{NULL}, the weights are set to 1/n, where n is the number of forecasts (this corresponds to a simple average Brier score).}
+  \item{decompControl}{a list of additional settings for the Brier
+  decomposition. See options below.}
 }
 \details{
 If \code{decomp=TRUE} or \code{group} is supplied, the function returns
   a list (see value section).  Otherwise, the function returns a numeric
   vector containing the Brier score associated with each forecast.
+
+Some \code{decompControl} arguments are specifically designed for forecasting tournaments and may not be useful in other situations. Possible arguments for \code{decompControl} include:
+\describe{
+  \item{wt}{A vector of weights, for performing a weighted Brier
+    decomposition (could also use the simple \code{wt} argument).}
+  \item{qid}{A vector of question ids, for use with the \code{qtype} argument.}
+  \item{bin}{If \code{TRUE} (default), forecasts are binned prior to decomposition. If \code{FALSE}, the original forecasts are maintained.}
+  \item{qtype}{A data frame with columns \code{qid}, \code{ord}, \code{squo}. For each unique question id in the \code{qid} argument above, this describes whether or not the question is ordinal (1=yes,0=no) and whether or not the question has a "status quo" interpretation (1=yes,0=no).}
+  \item{scale}{Should Brier components be rescaled, such that 1 is always best and 0 is always worst? Defaults to \code{FALSE}.}
+  \item{resamples}{Desired number of Brier resamples (useful for questions with inconsistent alternatives). Defaults to 0; see Merkle & Hartman reference for more detail.}
+}
 }
 \value{
 Depending on input arguments, \code{brierscore} may return an object of
@@ -40,8 +54,10 @@ Depending on input arguments, \code{brierscore} may return an object of
   
 \item{rawscores}{an object of class \code{numeric} containing raw Brier
   scores for each forecast.}
-\item{mnbrier}{an object of class \code{numeric} containing mean Brier
-  scores for each unique value of \code{group}.}
+\item{brieravg}{an object of class \code{numeric} containing average Brier
+  scores for each unique value of \code{group}. If \code{wt} was
+  supplied, this is a weighted sum. Otherwise, it is a simple average
+  (equal weights summing to 1).}
 \item{decomp}{an object of class \code{matrix} containing Brier score
   decompositions and mean Brier scores for each unique value of \code{group}.}
 }
@@ -49,12 +65,19 @@ Depending on input arguments, \code{brierscore} may return an object of
 Brier, G. W. (1950).  Verification of forecasts expressed in terms of
 probability.  \emph{Monthly Weather Review, 78},  1-3.
 
+Merkle, E. C. & Hartman, R. (2018). Weighted Brier score decompositions
+for topically heterogenous forecasting tournaments. \emph{Working paper}.
+
 Murphy, A. H. (1973).  A new vector partition of the probability score.
 \emph{Journal of Applied Meteorology, 12}, 595-600.
 
 Yates, J. F. (1982).  External correspondence: Decompositions of the
 mean probability score.  \emph{Organizational Behavior and Human
   Performance, 30}, 132-156.
+
+Young, R. M. B. (2010). Decomposition of the Brier score for weighted
+forecast-verification pairs. \emph{Quarterly Journal of the Royal
+  Meteorological Society, 136}, 1364-1370.
 }
 \author{
 Ed Merkle

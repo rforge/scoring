@@ -1,4 +1,4 @@
-scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL){
+scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, decargs=NULL){
     if(ordered){
         item.res <- ordwrap(data, param, fam)
     } else {
@@ -17,8 +17,10 @@ scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL){
     }
 
     if(decomp){
-        if(nalts>2) stop("Brier score decompositions are only valid for 2-alternative forecasts.\n")
-        d.res <- bdecomp(data[,1:nalts], data[,(nalts+1)], group)
+        decargs <- c(decargs, list(forecast=data[,1:nalts],
+                                   outcome=data[,(nalts+1)],
+                                   group=group))
+        d.res <- do.call("bdecomp", decargs)
 
         item.res <- list(rawscores=item.res, decomp=d.res)
     }

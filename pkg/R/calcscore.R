@@ -47,6 +47,12 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
         } else {
             group <- rep(1, NROW(object))
         }
+
+        if("decompControl" %in% names(dots)){
+            decargs <- dots$decompControl
+        } else {
+            decargs <- NULL
+        }
     } else {
         decomp <- FALSE
         group <- 1
@@ -140,7 +146,8 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(NCOL(forecast)==1) forecast <- cbind(1-forecast, forecast)
     datmat <- cbind(forecast, outcome)
     ## Obtain unscaled scores
-    sc <- scoreitems(param, datmat, fam, ordered, decomp, group)
+    sc <- scoreitems(param, datmat, fam, ordered, decomp, group,
+                     decargs)
 
     ## If decomp=TRUE, sc is a list:
     if(decomp){

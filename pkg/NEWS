@@ -1,5 +1,8 @@
 Changes in Version 0.6
 
+    o Weighted Brier decompositions, optionally with resampling,
+      are now available via brierscore().
+
     o Scoring family parameters can now be specified by row,
       allowing for a unique scoring rule for each forecast.
 
