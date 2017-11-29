@@ -26,7 +26,7 @@ phOifp <- function(dat, ngrp, fcols, qtype){
                     as.numeric(dat[[i]][["outcome"]]))] <- 1
 
     wtdat[[i]] <- dat[[i]][["wt"]]
-    
+
     if(any(qtype$ord == 1)){
       orddat <- expandOrd(fdat[[i]], ddat[[i]], ifpdat[[i]],
                           wtdat[[i]])

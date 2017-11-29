@@ -77,7 +77,7 @@ bdecomp <- function(forecast, outcome,
     dat <- split.data.frame(dat, group)
   
     ngrp <- length(dat)
-
+    grpnames <- names(dat)
   
     ## compute original (unrounded) mmde
     if(bin){
@@ -151,7 +151,7 @@ bdecomp <- function(forecast, outcome,
           -x[1] + x[2] + x[6]}))
     }
   
-    colnames(components) <- paste0("system", 1:ncol(components))
+    colnames(components) <- grpnames
     rownames(components) <- c("discrim", "miscal", "deltaf",
                               "miscal_lg", "cov", "unc", "brier")
     if(scale) rownames(components)[c(2,4)] <- c("cal", "cal_lg")
@@ -163,6 +163,7 @@ bdecomp <- function(forecast, outcome,
 
     if(bin){
         print(round(components, 3))
+        names(reslist) <- names(qcalib) <- names(qdiscrim) <- grpnames
         res <- list(components = components, resamples = reslist,
                     qcalib = qcalib, qdiscrim = qdiscrim, scale = scale)
     } else {

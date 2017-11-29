@@ -7,5 +7,5 @@ export(
 S3method("calcscore", "formula")
 S3method("calcscore", "default")
 importFrom("graphics", "lines", "plot")
-importFrom("stats", "integrate", "model.response", "na.omit", "var")
+importFrom("stats", "integrate", "model.response", "na.omit", "var", "na.pass")
 importFrom("utils", "head")

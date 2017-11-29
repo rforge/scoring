@@ -10,7 +10,7 @@ calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, rever
     if("scaling" %in% names(dots)){
       if(dots$scaling) bounds <- c(0,1)
     }
-  
+
     if(missing(data)) data <- environment(object)
     mf <- match.call()
     m <- match(c("object", "data"), names(mf), 0L)
@@ -19,6 +19,10 @@ calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, rever
 
     ## Get outcomes and forecasts
     mf[[1L]] <- as.name("model.frame")
+    ## to send rows with NA through:
+    if(length(mf) == 3L){
+      attr(mf[[3L]], 'na.action') <- na.pass
+    }
     mf <- eval(mf, parent.frame())
     mt <- attr(mf, "terms")
     outcome <- model.response(mf, "any")
@@ -76,7 +80,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     if(NCOL(forecast)>2 & fam=="beta") stop("Beta family cannot be used with >2 alternatives.\n")
     ## Check that forecast rows sum to 1.  If not, rescale and warn.
     if(is.matrix(forecast) | is.data.frame(forecast)){
-      ss <- rowSums(forecast)
+      ss <- rowSums(forecast, na.rm=TRUE)
       if(any(ss != 1)){
         warning("Forecasts in some rows do not sum to 1; they were scaled to sum to 1.")
       }

@@ -10,8 +10,11 @@ scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, deca
 
         item.res <- apply(data, 1, function(x){
             scfun <- x[(nalts+2)]
+            ## allow differing numbers of alts per row:
+            fvals <- which(!is.na(x[1:nalts]))
+            outs <- match(x[(nalts+1)], fvals)
             x <- as.numeric(x[-(nalts+2)])
-            do.call(scfun, list(x[1:nalts], x[(nalts+1)],
+            do.call(scfun, list(x[fvals], x[(nalts+1)],
                                 x[(nalts+2):length(x)], scfun))
         })
     }
