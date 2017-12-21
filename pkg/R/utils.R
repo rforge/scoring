@@ -124,7 +124,9 @@ shuffle <- function(fdat, ddat, ifpdat, shuff = TRUE){
 
   if(shuff){
     sqshuf <- sample(1:nalt, nalt)
-    oshuf <- sample(1:nalt, nalt)
+    oshuf <- sample(1:(nalt-1), 1) # keep the cumulative probs together
+    remalts <- (1:nalt)[-c(oshuf, (oshuf+1))]
+    oshuf <- c(oshuf, (oshuf+1), remalts)
   } else {
     sqshuf <- 1:nalt
     oshuf <- 1:nalt
@@ -136,10 +138,11 @@ shuffle <- function(fdat, ddat, ifpdat, shuff = TRUE){
     unifp <- unique(ifpdat[[i]][['ifpid']][ifpdat[[i]][['squo']] != 1 & ifpdat[[i]][['ord']] != 1])
     
     ## a single shuffle for squo questions, and for ordinal questions
+    ## (ensuring ordinal cumulative probs stay together)
     fdat[[i]][ifpdat$squo == 1,] <- fdat[[i]][ifpdat$squo == 1, sqshuf]
-    fdat[[i]][ifpdat$ord == 1,] <- fdat[[i]][ifpdat$ord == 1, oshuf]
+    fdat[[i]][ifpdat$ord == 1, oshuf] <- fdat[[i]][ifpdat$ord == 1,]
     ddat[[i]][ifpdat$squo == 1,] <- ddat[[i]][ifpdat$squo == 1, sqshuf]
-    ddat[[i]][ifpdat$ord == 1,] <- ddat[[i]][ifpdat$ord == 1, oshuf]
+    ddat[[i]][ifpdat$ord == 1, oshuf] <- ddat[[i]][ifpdat$ord == 1, ]
   }
 
   tmpshuf <- 1:nalt
