@@ -150,7 +150,7 @@ bdecomp <- function(forecast, outcome,
         components <- rbind(components, apply(components, 2, function(x){
           -x[1] + x[2] + x[6]}))
     }
-  
+
     colnames(components) <- grpnames
     rownames(components) <- c("discrim", "miscal", "deltaf",
                               "miscal_lg", "cov", "unc", "brier")

@@ -86,8 +86,12 @@ calcDecomp <- function(f, d, bin, wt, nbin = max(bin), scale=FALSE, ...){
   f0 <- f * (1 - dna)
   fbar1 <- apply(f1, 2, function(x) sum(wt * x, na.rm = TRUE) /
                                     sum(wt * !is.na(x)))
+  ## in case no d=1 for an alternative
+  fbar1[is.na(fbar1)] <- 0
   fbar0 <- apply(f0, 2, function(x) sum(wt * x, na.rm = TRUE) /
                                     sum(wt * !is.na(x)))
+  ## in case no d=0 for an alternative
+  fbar0[is.na(fbar0)] <- 0
   deltaf <- sum(fvar - (fbar1 - fbar0)^2 * dbar * (1 - dbar))
 
   ## check per yates 1982, eq (10)
