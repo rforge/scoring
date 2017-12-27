@@ -31,7 +31,7 @@ brierscore <- function(object, data, group=NULL, decomp=FALSE, bounds=NULL, reve
         group <- data[[m]]
         args <- c(args, list(group=group))
     }
-    
+
     ## Get Brier scores + decomp using calcscore
     scores <- do.call("calcscore", args)
 
@@ -67,8 +67,8 @@ bdecomp <- function(forecast, outcome,
     if(is.null(qtype)){
         uqs <- unique(qid)
         qtype <- cbind.data.frame(qid = uqs,
-                                  ord = rep(0, length(qid)),
-                                  squo = rep(0, length(qid)))
+                                  ord = rep(0, length(uqs)),
+                                  squo = rep(0, length(uqs)))
 
     }
 
