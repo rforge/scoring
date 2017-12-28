@@ -121,9 +121,10 @@ bdecomp <- function(forecast, outcome,
                 qcalib[[j]][i,] <- decomp$qcalib
                 qdiscrim[[j]][i,] <- decomp$qdiscrim
             } else {
-                mmde <- sum(tmpwt * apply((tmpf - tmpd)^2, 1, sum))
-                decomp <- c(2*mmde, mmde, 2*mmde, 2*mmde, mmde, 2*mmde)
-
+                rowbriers <- apply((tmpf - tmpd)^2, 1, sum)
+                mde <- tapply(tmpwt * rowbriers, newdat$ifpdat[[j]]$ifpid, sum)/tapply(tmpwt, newdat$ifpdat[[j]]$ifpid, sum)
+                mmde <- sum(tmpwt * rowbriers)
+                decomp <- summary(mde) #c(2*mmde, mmde, 2*mmde, 2*mmde, mmde, 2*mmde)
                 reslist[[j]][i,] <- decomp
             }
         }
@@ -157,8 +158,8 @@ bdecomp <- function(forecast, outcome,
     if(scale) rownames(components)[c(2,4)] <- c("cal", "cal_lg")
   
     if(bin){
-        components <- rbind(components, origmmde[7,])
-        rownames(components)[8] <- "orig_brier"
+        components <- rbind(components, origmmde[c(4,3,1:2,5:6),])
+        rownames(components)[8:13] <- c("orig_brier","mde_median","mde_min","mde_q25","mde_q75","mde_max")
     }
 
     if(bin){

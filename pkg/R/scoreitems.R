@@ -1,4 +1,5 @@
 scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, decargs=NULL){
+    ## FIXME allow ordered to vary by row
     if(ordered){
         item.res <- ordwrap(data, param, fam)
     } else {
