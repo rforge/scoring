@@ -20,18 +20,27 @@ scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, deca
 
         for(i in 1:length(totalts)){
             tmprow <- which(nalts == totalts[i])
-      
+
+            parm <- param
+            if(nrow(param) > 1) parm <- as.matrix(param[ordrows[tmprow],])
+            tmpfam <- fam
+            if(length(fam) > 1) tmpfam <- fam[ordrows[tmprow]]
+            
             item.res[ordrows[tmprow]] <- ordwrap(data[ordrows,c(1:totalts[i],ncol(data))],
-                                                 as.matrix(param[ordrows[tmprow],]),
-                                                 fam[ordrows[tmprow]])
+                                                 parm,
+                                                 tmpfam)
         }
     }
     if(length(urows) > 0){
-        scorefun <- paste(fam[urows],"fam",sep="")
-
         nalts <- ncol(data)-1
 
-        datau <- cbind.data.frame(data[urows,], scorefun, as.matrix(param[urows,]))
+        parm <- param
+        if(nrow(param) > 1) parm <- as.matrix(param[urows,])
+        tmpfam <- fam
+        if(length(fam) > 1) tmpfam <- fam[urows]
+        scorefun <- paste(tmpfam,"fam",sep="")
+
+        datau <- cbind.data.frame(data[urows,], scorefun, parm)
 
         item.res[urows] <- apply(datau, 1, function(x){
             scfun <- x[(nalts+2)]
