@@ -88,7 +88,7 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     ## Check beta family params
     if(fam=="beta"){
         if(any(param <= -1)) stop("Beta family parameters must be greater than -1")
-        if(ordered){
+        if(any(ordered)){
             ordered <- FALSE
             warning("ordered=TRUE has no impact on beta family scores.")
         }
@@ -162,8 +162,8 @@ function(object, outcome, fam="pow", param=c(2,rep(1/max(2,NCOL(forecast)),max(2
     ## Scale if desired
     if(!is.null(bounds)){
         ## TODO Apply scalescores() to each unique scoring rule
-        if(nparrows > 1){
-            warning("Scaling unavailable when the scoring rule differs by row.")
+        if(nparrows > 1 | !all(ordered == ordered[1])){
+            warning("Scaling currently unavailable when the scoring rule differs by row.")
         } else {
             scalefactor <- scalescores(param[1,], fam[1], ordered, nalts)
 

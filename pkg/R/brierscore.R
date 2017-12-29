@@ -4,7 +4,7 @@ brierscore <- function(object, data, group=NULL, decomp=FALSE, bounds=NULL, reve
     ## FIXME Use | within a formula for groups?
     if(missing(data)) data <- environment(object)
     ## So bounds of $rawscores match the decomposition:
-    if(decomp & is.null(bounds)) bounds <- c(0,2)
+    ##if(decomp & is.null(bounds)) bounds <- c(0,2)
 
     ## ensure wt + decompControl$wt are the same
     ## (wt arg only exists in case user wants a weighted
@@ -20,9 +20,17 @@ brierscore <- function(object, data, group=NULL, decomp=FALSE, bounds=NULL, reve
     if(is.null(wt) & ("wt" %in% names(decompControl))){
         wt <- decompControl$wt
     }
-      
+
+    if("qtype" %in% names(decompControl)){
+        qtype <- decompControl$qtype
+        ordrows <- as.logical(qtype$ord[match(data$question.id,
+                                              qtype$qid)])
+    } else {
+        ordrows <- FALSE
+    }
+        
     args <- list(object=object, param=2, data=data, bounds=bounds,
-                 reverse=reverse, decomp=decomp,
+                 reverse=reverse, ordered = ordrows, decomp=decomp,
                  decompControl=decompControl)
 
     if(!is.null(group)){
