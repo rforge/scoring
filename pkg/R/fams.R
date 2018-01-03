@@ -124,7 +124,7 @@ ordwrap <- function(data, param, fam){
         runscore <- runscore + tmpscore
     }
 
-    runscore
+    runscore/ncol(p1)
 }
 
 
