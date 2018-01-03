@@ -105,7 +105,7 @@ bdecomp <- function(forecast, outcome,
     reslist <- qcalib <- qdiscrim <- vector("list", ngrp)
     niter <- ifelse(resamples < 1, 1, resamples)
     for(i in 1:ngrp){
-      reslist[[i]] <- matrix(NA, niter, 6)
+      reslist[[i]] <- matrix(NA, niter, (6 + !bin))
       qcalib[[i]] <- matrix(NA, niter, J)
       qdiscrim[[i]] <- matrix(NA, niter, J)
     }
@@ -132,7 +132,7 @@ bdecomp <- function(forecast, outcome,
                 rowbriers <- apply((tmpf - tmpd)^2, 1, sum)
                 mde <- tapply(tmpwt * rowbriers, newdat$ifpdat[[j]]$ifpid, sum)/tapply(tmpwt, newdat$ifpdat[[j]]$ifpid, sum)
                 mmde <- sum(tmpwt * rowbriers)
-                decomp <- summary(mde) #c(2*mmde, mmde, 2*mmde, 2*mmde, mmde, 2*mmde)
+                decomp <- c(summary(mde), sd(mde)) #c(2*mmde, mmde, 2*mmde, 2*mmde, mmde, 2*mmde)
                 reslist[[j]][i,] <- decomp
             }
         }
@@ -161,16 +161,15 @@ bdecomp <- function(forecast, outcome,
     }
 
     colnames(components) <- grpnames
-    rownames(components) <- c("discrim", "miscal", "deltaf",
-                              "miscal_lg", "cov", "unc", "brier")
+    if(bin){
+        rownames(components) <- c("discrim", "miscal", "deltaf",
+                                  "miscal_lg", "cov", "unc", "brier")
+    }
     if(scale) rownames(components)[c(2,4)] <- c("cal", "cal_lg")
   
     if(bin){
-        components <- rbind(components, origmmde[c(4,3,1:2,5:6),])
-        rownames(components)[8:13] <- c("orig_brier","mde_median","mde_min","mde_q25","mde_q75","mde_max")
-    }
-
-    if(bin){
+        components <- rbind(components, origmmde[c(4,7,3,1:2,5:6),])
+        rownames(components)[8:14] <- c("orig_brier","mde_sd","mde_median","mde_min","mde_q25","mde_q75","mde_max")
         print(round(components, 3))
         names(reslist) <- names(qcalib) <- names(qdiscrim) <- grpnames
         res <- list(components = components, resamples = reslist,
