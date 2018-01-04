@@ -70,6 +70,11 @@ bdecomp <- function(forecast, outcome,
         wt <- as.numeric(wt[wttrans])
     }
 
+    ## ensure forecasts sum to 1
+    fsums <- data.frame(t(apply(forecast, 1, function(x) x/sum(x, na.rm = TRUE))))
+    names(fsums) <- names(forecast)
+    forecast <- fsums
+
     dat <- cbind.data.frame(forecast, outcome = outcome,
                             group = group, wt = wt)
     if(is.null(qtype)){
