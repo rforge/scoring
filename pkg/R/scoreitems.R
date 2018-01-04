@@ -1,5 +1,5 @@
 scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, decargs=NULL){
-    ordmix <- !all(ordered == ordered[1])
+    ordmix <- (length(ordered) > 1) & (!all(ordered == ordered[1]))
     if(ordmix){
         ordrows <- which(ordered)
         urows <- which(!ordered)
@@ -25,8 +25,7 @@ scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, deca
             if(nrow(param) > 1) parm <- as.matrix(param[ordrows[tmprow],])
             tmpfam <- fam
             if(length(fam) > 1) tmpfam <- fam[ordrows[tmprow]]
-            
-            item.res[ordrows[tmprow]] <- ordwrap(data[ordrows,c(1:totalts[i],ncol(data))],
+            item.res[ordrows[tmprow]] <- ordwrap(data[ordrows[tmprow],c(1:totalts[i],ncol(data))],
                                                  parm,
                                                  tmpfam)
         }
