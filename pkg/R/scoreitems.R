@@ -3,7 +3,7 @@ scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, deca
     if(ordmix){
         ordrows <- which(ordered)
         urows <- which(!ordered)
-    } else if(ordered[1]){
+    } else if(length(ordered) > 0 & ordered[1]){
         ordrows <- 1:nrow(data)
         urows <- NULL
     } else {
