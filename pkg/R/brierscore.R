@@ -61,6 +61,7 @@ bdecomp <- function(forecast, outcome,
                     group = rep(1, length(outcome)),
                     wt = NULL, qid = 1:nrow(forecast), bin = TRUE,
                     qtype = NULL, scale = FALSE,
+                    roundto = .1, binstyle = 1,
                     resamples = 0){
 
     origqtype <- qtype
@@ -105,7 +106,7 @@ bdecomp <- function(forecast, outcome,
     J <- sapply(newdat$ifpdat, function(x) length(unique(x$ifpid)))
     if(length(unique(n)) > 1) stop("Different groups have differing numbers of forecasts. Group comparisons will be inaccurate.")  
 
-    binfs <- setBins(newdat$fdat, bin)
+    binfs <- setBins(newdat$fdat, bin, roundto, binstyle)
 
     reslist <- qcalib <- qdiscrim <- vector("list", ngrp)
     niter <- ifelse(resamples < 1, 1, resamples)
@@ -173,7 +174,9 @@ bdecomp <- function(forecast, outcome,
     if(scale) rownames(components)[c(2,4)] <- c("cal", "cal_lg")
   
     if(bin){
-        components <- rbind(components, origmmde[c(4,7,3,1:2,5:6),])
+        components <- rbind(components,
+                            as.matrix(origmmde[c(4,7,3,1:2,5:6),],
+                                      nrow(origmmde), ncol(origmmde)))
         rownames(components)[8:14] <- c("orig_brier","mde_sd","mde_median","mde_min","mde_q25","mde_q75","mde_max")
         print(round(components, 3))
         names(reslist) <- names(qcalib) <- names(qdiscrim) <- grpnames
