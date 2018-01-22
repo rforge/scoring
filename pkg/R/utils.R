@@ -88,19 +88,38 @@ expandOrd <- function(fdat, ddat, ifpdat, wtdat){
 }
 
 
-setBins <- function(fdat, bin){
+setBins <- function(fdat, bin, roundto = .1, binstyle = 1){
+  ## roundto: round to nearest what value?
+  ## binstyle 1: smallest nonzero forecast is 1-(sum of rest)
+  ##          2: round closest values first
   grp <- rep(1:length(fdat), sapply(fdat, nrow))
-  fullf <- do.call("rbind", fdat)
+  fullf <- origf <- do.call("rbind", fdat)
   if(bin){
-    fullf <- round(fullf, 1)
-    binfs <- t(apply(fullf, 1, function(x){
-      if(sum(x, na.rm=TRUE) != 1){
-        mv <- which(x == min(x, na.rm = TRUE))
-        if(length(mv) > 1) mv <- sample(mv, 1)
-        x[mv] <- 1 - sum(x[-mv], na.rm = TRUE)
+    fullf <- round(fullf/roundto) * roundto
+    fdiffs <- abs(fullf - origf)
+
+    if(binstyle == 1){
+      binfs <- t(apply(fullf, 1, function(x){
+        if(sum(x, na.rm=TRUE) != 1){
+          mv <- which(x == min(x, na.rm = TRUE))
+          if(length(mv) > 1) mv <- sample(mv, 1)
+          x[mv] <- 1 - sum(x[-mv], na.rm = TRUE)
+        }
+        x
+      }))
+    } else if(binstyle == 2){
+      badsums <- which(apply(fullf, 1, sum, na.rm=TRUE) != 1)
+      maxdiff <- apply(fdiffs, 1, function(x){
+        ## which.max only returns first entry, we need all
+        tmax <- which(x == max(x, na.rm = TRUE))
+        if(length(tmax) > 1) tmax <- sample(tmax, 1)
+        tmax
+      })
+      for(i in badsums){
+        fullf[i,maxdiff[i]] <- 1 - sum(fullf[i,-maxdiff[i]], na.rm=TRUE)
       }
-      x
-    }))
+      binfs <- fullf
+    }
   } else {
     binfs <- fullf
   }
