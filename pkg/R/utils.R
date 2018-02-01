@@ -165,12 +165,14 @@ shuffle <- function(fdat, ddat, ifpdat, shuff = TRUE){
   }
 
   tmpshuf <- 1:nalt
-  for(j in 1:length(unifp)){
-    if(shuff) tmpshuf <- sample(1:nalt, nalt)
-    for(i in 1:nsystem){
-      tmprows <- ifpdat[[i]][['ifpid']] == unifp[j]
-      fdat[[i]][tmprows,1:nalt] <- fdat[[i]][tmprows,tmpshuf]
-      ddat[[i]][tmprows,1:nalt] <- ddat[[i]][tmprows,tmpshuf]
+  if(length(unifp) > 0){
+    for(j in 1:length(unifp)){
+      if(shuff) tmpshuf <- sample(1:nalt, nalt)
+      for(i in 1:nsystem){
+        tmprows <- ifpdat[[i]][['ifpid']] == unifp[j]
+        fdat[[i]][tmprows,1:nalt] <- fdat[[i]][tmprows,tmpshuf]
+        ddat[[i]][tmprows,1:nalt] <- ddat[[i]][tmprows,tmpshuf]
+      }
     }
   }
 
