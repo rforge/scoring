@@ -9,7 +9,8 @@ Calculate Brier scores, average Brier scores by a grouping variable, and
 Brier score decompositions for two-alternative forecasts.
 }
 \usage{
-brierscore(object, data, group = NULL, decomp = FALSE, bounds = NULL, reverse = FALSE, wt = NULL, decompControl = list())
+brierscore(object, data, group = NULL, decomp = FALSE, bounds = NULL,
+           reverse = FALSE, wt = NULL, decompControl = list())
 }
 
 \arguments{
@@ -43,7 +44,15 @@ Some \code{decompControl} arguments are specifically designed for forecasting to
   \item{qid}{A vector of question ids, for use with the \code{qtype} argument.}
   \item{bin}{If \code{TRUE} (default), forecasts are binned prior to decomposition. If \code{FALSE}, the original forecasts are maintained.}
   \item{qtype}{A data frame with columns \code{qid}, \code{ord}, \code{squo}. For each unique question id in the \code{qid} argument above, this describes whether or not the question is ordinal (1=yes,0=no) and whether or not the question has a "status quo" interpretation (1=yes,0=no).}
-  \item{scale}{Should Brier components be rescaled, such that 1 is always best and 0 is always worst? Defaults to \code{FALSE}.}
+  \item{scale}{Should Brier components be rescaled, such that 1 is
+    always best and 0 is always worst? Defaults to \code{FALSE}.}
+  \item{roundto}{To what value should forecasts be rounded (necessary
+    for Murphy decomposition)? Defaults to
+    .1, meaning that forecasts are rounded to the nearest .1.}
+  \item{binstyle}{Method for ensuring that each forecast sums to 1. If
+    equal to 1 (default), the smallest forecast is one minus the sum of
+    the other forecasts. If equal to 2, the forecast furthest from its
+    rounded value is one minus the sum of other forecasts.}
   \item{resamples}{Desired number of Brier resamples (useful for questions with inconsistent alternatives). Defaults to 0; see Merkle & Hartman reference for more detail.}
 }
 }

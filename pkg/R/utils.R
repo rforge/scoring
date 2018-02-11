@@ -90,7 +90,7 @@ expandOrd <- function(fdat, ddat, ifpdat, wtdat){
 
 setBins <- function(fdat, bin, roundto = .1, binstyle = 1){
   ## roundto: round to nearest what value?
-  ## binstyle 1: smallest nonzero forecast is 1-(sum of rest)
+  ## binstyle 1: smallest forecast is 1-(sum of rest)
   ##          2: round closest values first
   grp <- rep(1:length(fdat), sapply(fdat, nrow))
   fullf <- origf <- do.call("rbind", fdat)
