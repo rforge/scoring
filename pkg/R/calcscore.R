@@ -21,7 +21,9 @@ calcscore.formula <- function(object, fam="pow", param, data, bounds=NULL, rever
     mf[[1L]] <- as.name("model.frame")
     ## to send rows with NA through:
     if(length(mf) == 3L){
-      attr(mf[[3L]], 'na.action') <- na.pass
+      mf[[4L]] <- na.pass
+      names(mf)[4] <- "na.action"
+      #attr(mf[[3L]], 'na.action') <- na.pass
     }
     mf <- eval(mf, parent.frame())
     mt <- attr(mf, "terms")
