@@ -21,9 +21,10 @@ brierscore <- function(object, data, group=NULL, decomp=FALSE, bounds=NULL, reve
         wt <- decompControl$wt
     }
 
-    if("qtype" %in% names(decompControl)){
+    if(all(c("qid","qtype") %in% names(decompControl))){
         qtype <- decompControl$qtype
-        ordrows <- as.logical(qtype$ord[match(data$question.id,
+        qid <- decompControl$qid
+        ordrows <- as.logical(qtype$ord[match(qid,
                                               qtype$qid)])
     } else {
         ordrows <- FALSE
