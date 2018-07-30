@@ -11,14 +11,14 @@ phOifp <- function(dat, ngrp, fcols, qtype){
 
   if(qinfo) ifpdat <- vector("list", ngrp)
   for(i in 1:ngrp){
-    fdat[[i]] <- dat[[i]][,fcols]
+    fdat[[i]] <- dat[[i]][,..fcols]
 
     if(qinfo){
       ifpid <- dat[[i]]$qid
       ifpmatch <- match(ifpid, qtype$qid)
-      ifpdat[[i]] <- cbind.data.frame(ifpid,
-                                      squo = qtype$squo[ifpmatch],
-                                      ord = qtype$ord[ifpmatch])
+      ifpdat[[i]] <- data.table(ifpid,
+                                squo = qtype$squo[ifpmatch],
+                                ord = qtype$ord[ifpmatch])
     }
 
     ddat[[i]] <- matrix(0, nrow(fdat[[i]]), ncol(fdat[[i]]))
@@ -48,10 +48,14 @@ phOifp <- function(dat, ngrp, fcols, qtype){
 ## expand out ordinal ifps into cumulatives
 expandOrd <- function(fdat, ddat, ifpdat, wtdat){
   oifps <- which(ifpdat$ord == 1)
+  ddat <- data.table(ddat)
 
-  cumfs <- t(apply(fdat[oifps,], 1, cumsum))
-  cumds <- t(apply(ddat[oifps,], 1, cumsum))
-  nalts <- apply(!is.na(fdat[oifps,]), 1, sum)
+  cumfs <- fdat[oifps,]
+  nalts <- cumfs[, sum(!is.na(.SD)), by=seq_len(nrow(cumfs))]$V1
+  cumfs[, names(cumfs) := Reduce(`+`, cumfs, accumulate = TRUE)]
+
+  cumds <- ddat[oifps,]
+  cumds[, names(cumds) := Reduce(`+`, cumds, accumulate = TRUE)]
 
   M <- ncol(fdat)
   newifpid <- rep(ifpdat$ifpid[oifps], (nalts-1))
@@ -125,7 +129,8 @@ setBins <- function(fdat, bin, roundto = .1, binstyle = 1){
   }
   
   ## separate out fs by system
-  binfs <- split.data.frame(binfs, grp)
+  binfs <- data.table(binfs)
+  binfs <- split(binfs, grp)
 
   binfs
 }
@@ -155,13 +160,18 @@ shuffle <- function(fdat, ddat, ifpdat, shuff = TRUE){
     if(any(ifpdat[[i]][['squo']] == 1 & ifpdat[[i]][['ord']] ==1)) stop("IFPs cannot be coded as both 'status quo' and 'ordinal'.")
 
     unifp <- unique(ifpdat[[i]][['ifpid']][ifpdat[[i]][['squo']] != 1 & ifpdat[[i]][['ord']] != 1])
-    
+
     ## a single shuffle for squo questions, and for ordinal questions
     ## (ensuring ordinal cumulative probs stay together)
-    fdat[[i]][ifpdat$squo == 1,] <- fdat[[i]][ifpdat$squo == 1, sqshuf]
-    fdat[[i]][ifpdat$ord == 1, oshuf] <- fdat[[i]][ifpdat$ord == 1,]
-    ddat[[i]][ifpdat$squo == 1,] <- ddat[[i]][ifpdat$squo == 1, sqshuf]
-    ddat[[i]][ifpdat$ord == 1, oshuf] <- ddat[[i]][ifpdat$ord == 1, ]
+    if(any(ifpdat[[i]][['squo']] == 1)){
+      fdat[[i]][ifpdat$squo == 1,] <- fdat[[i]][ifpdat$squo == 1, sqshuf, with=FALSE]
+      ddat[[i]][ifpdat$squo == 1,] <- ddat[[i]][ifpdat$squo == 1, sqshuf, with=FALSE]
+    }
+    if(any(ifpdat[[i]][['ord']] == 1)){
+      fdat[[i]][ifpdat$ord == 1, oshuf] <- fdat[[i]][ifpdat$ord == 1,]
+
+      ddat[[i]][ifpdat$ord == 1, oshuf] <- ddat[[i]][ifpdat$ord == 1, ]
+    }
   }
 
   tmpshuf <- 1:nalt
@@ -170,15 +180,15 @@ shuffle <- function(fdat, ddat, ifpdat, shuff = TRUE){
       if(shuff) tmpshuf <- sample(1:nalt, nalt)
       for(i in 1:nsystem){
         tmprows <- ifpdat[[i]][['ifpid']] == unifp[j]
-        fdat[[i]][tmprows,1:nalt] <- fdat[[i]][tmprows,tmpshuf]
-        ddat[[i]][tmprows,1:nalt] <- ddat[[i]][tmprows,tmpshuf]
+        fdat[[i]][tmprows,1:nalt] <- fdat[[i]][tmprows,tmpshuf,with=FALSE]
+        ddat[[i]][tmprows,1:nalt] <- ddat[[i]][tmprows,tmpshuf,with=FALSE]
       }
     }
   }
 
   ## define new bins based on shuffled rows (without
   ## rounding/transforming any forecasts)
-  fullf <- do.call("rbind", fdat)
+  fullf <- as.data.frame(do.call("rbind", fdat))
   newbins <- paste0(fullf[,1], fullf[,2])
   if(ncol(fullf) > 2){
     for(i in 3:ncol(fullf)){

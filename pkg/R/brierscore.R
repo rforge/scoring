@@ -73,12 +73,13 @@ bdecomp <- function(forecast, outcome,
     }
 
     ## ensure forecasts sum to 1
-    fsums <- data.frame(t(apply(forecast, 1, function(x) x/sum(x, na.rm = TRUE))))
+    fs <- rowSums(forecast, na.rm=TRUE)
+    fsums <- (1/fs) * as.matrix(forecast)
     names(fsums) <- names(forecast)
     forecast <- fsums
 
-    dat <- cbind.data.frame(forecast, outcome = outcome,
-                            group = group, wt = wt)
+    dat <- data.table(forecast, outcome = outcome,
+                      group = group, wt = wt)
     if(is.null(qtype)){
         uqs <- unique(qid)
         qtype <- cbind.data.frame(qid = uqs,
@@ -87,10 +88,9 @@ bdecomp <- function(forecast, outcome,
 
     }
 
-    dat <- cbind.data.frame(dat, qid = qid)
+    dat$qid <- qid
   
-    dat <- split.data.frame(dat, group)
-  
+    dat <- split(dat, group)  
     ngrp <- length(dat)
     grpnames <- names(dat)
   
@@ -121,7 +121,7 @@ bdecomp <- function(forecast, outcome,
     for(i in 1:niter){
         shuffdat <- shuffle(binfs, newdat$ddat, newdat$ifpdat,
                             shuff = resamples > 1)
-            
+
         for(j in 1:ngrp){
             tmpf <- shuffdat$fdat[[j]]
             tmpd <- shuffdat$ddat[[j]]
@@ -130,6 +130,7 @@ bdecomp <- function(forecast, outcome,
             tmpwt <- newdat$wtdat[[j]]
 
             if(bin){
+                ## TODO work on this next:
                 decomp <- calcDecomp(tmpf, tmpd, tmpbin, tmpwt, nbin, scale = scale, ifpid = newdat$ifpdat[[j]]$ifpid)
 
                 reslist[[j]][i,] <- decomp$res
