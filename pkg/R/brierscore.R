@@ -130,14 +130,13 @@ bdecomp <- function(forecast, outcome,
             tmpwt <- newdat$wtdat[[j]]
 
             if(bin){
-                ## TODO work on this next:
                 decomp <- calcDecomp(tmpf, tmpd, tmpbin, tmpwt, nbin, scale = scale, ifpid = newdat$ifpdat[[j]]$ifpid)
 
                 reslist[[j]][i,] <- decomp$res
                 qcalib[[j]][i,] <- decomp$qcalib
                 qdiscrim[[j]][i,] <- decomp$qdiscrim
             } else {
-                rowbriers <- apply((tmpf - tmpd)^2, 1, sum)
+                rowbriers <- rowSums((tmpf - tmpd)^2)
                 mde <- tapply(tmpwt * rowbriers, newdat$ifpdat[[j]]$ifpid, sum)/tapply(tmpwt, newdat$ifpdat[[j]]$ifpid, sum)
                 mmde <- sum(tmpwt * rowbriers)
                 decomp <- c(summary(mde), sd(mde)) #c(2*mmde, mmde, 2*mmde, 2*mmde, mmde, 2*mmde)
