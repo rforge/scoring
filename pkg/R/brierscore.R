@@ -204,7 +204,9 @@ if(FALSE){
   d <- t(rmultinom(10, 1, c(.3,.3,.4)))
   dvec <- apply(d, 1, function(x) which(x==1))
 
-  tmp <- bdecomp(f, dvec, wt=wt)
+  qt <- cbind.data.frame(qid=1:10, ord=c(rep(0,7),rep(1,3)), squo=rep(0,10))
+  
+  tmp <- bdecomp(f, dvec, wt=wt, qtype=qt)
 
 
   ## old code:
