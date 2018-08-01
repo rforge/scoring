@@ -73,13 +73,12 @@ bdecomp <- function(forecast, outcome,
     }
 
     ## ensure forecasts sum to 1
-    fs <- rowSums(forecast, na.rm=TRUE)
-    fsums <- (1/fs) * as.matrix(forecast)
+    fsums <- data.frame(t(apply(forecast, 1, function(x) x/sum(x, na.rm = TRUE))))
     names(fsums) <- names(forecast)
     forecast <- fsums
 
-    dat <- data.table(forecast, outcome = outcome,
-                      group = group, wt = wt)
+    dat <- cbind.data.frame(forecast, outcome = outcome,
+                            group = group, wt = wt)
     if(is.null(qtype)){
         uqs <- unique(qid)
         qtype <- cbind.data.frame(qid = uqs,
@@ -88,9 +87,10 @@ bdecomp <- function(forecast, outcome,
 
     }
 
-    dat$qid <- qid
+    dat <- cbind.data.frame(dat, qid = qid)
   
-    dat <- split(dat, group)  
+    dat <- split.data.frame(dat, group)
+  
     ngrp <- length(dat)
     grpnames <- names(dat)
   
@@ -121,7 +121,7 @@ bdecomp <- function(forecast, outcome,
     for(i in 1:niter){
         shuffdat <- shuffle(binfs, newdat$ddat, newdat$ifpdat,
                             shuff = resamples > 1)
-
+            
         for(j in 1:ngrp){
             tmpf <- shuffdat$fdat[[j]]
             tmpd <- shuffdat$ddat[[j]]
@@ -136,7 +136,7 @@ bdecomp <- function(forecast, outcome,
                 qcalib[[j]][i,] <- decomp$qcalib
                 qdiscrim[[j]][i,] <- decomp$qdiscrim
             } else {
-                rowbriers <- rowSums((tmpf - tmpd)^2)
+                rowbriers <- apply((tmpf - tmpd)^2, 1, sum)
                 mde <- tapply(tmpwt * rowbriers, newdat$ifpdat[[j]]$ifpid, sum)/tapply(tmpwt, newdat$ifpdat[[j]]$ifpid, sum)
                 mmde <- sum(tmpwt * rowbriers)
                 decomp <- c(summary(mde), sd(mde)) #c(2*mmde, mmde, 2*mmde, 2*mmde, mmde, 2*mmde)
@@ -203,9 +203,7 @@ if(FALSE){
   d <- t(rmultinom(10, 1, c(.3,.3,.4)))
   dvec <- apply(d, 1, function(x) which(x==1))
 
-  qt <- cbind.data.frame(qid=1:10, ord=c(rep(0,7),rep(1,3)), squo=rep(0,10))
-  
-  tmp <- bdecomp(f, dvec, wt=wt, qtype=qt)
+  tmp <- bdecomp(f, dvec, wt=wt)
 
 
   ## old code:

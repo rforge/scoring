@@ -23,18 +23,17 @@ calcDecomp <- function(f, d, bin, wt, nbin = max(bin), scale=FALSE, ...){
   }
 
   binw <- tapply(wt, bin, sum) # w* from paper
-  dw <- d[, lapply(.SD, function(x) x*wt)]
-  dbar <- colSums(dw)
-  bindw <- dw[, lapply(.SD, sum), keyby=bin][,-1]
-  bindw <- bindw[, lapply(.SD, function(x) x/binw)] # dbar_km from paper
-  binf <- f[, lapply(.SD, head, 1), keyby=bin][,1]
-    
+  dw <- apply(d, 2, function(x) x*wt)
+  dbar <- apply(dw, 2, sum)
+  bindw <- apply(dw, 2, function(x) tapply(x, bin, sum)/binw) # dbar_km from paper
+  binf <- apply(f, 2, function(x) tapply(x, bin, head, 1))
+  
   unc <- sum(dbar * (1 - dbar))
 
   if(useifps){
     ## assume weights sum to 1, each ifpid weighted equally
     bindbar <- bindw[bin,]
-    qdiscrim <- bindbar[, sum((.SD - dbar)^2, na.rm = TRUE), by=seq_len(nrow(bindbar))]$V1
+    qdiscrim <- apply(bindbar, 1, function(x) sum((x - dbar)^2, na.rm = TRUE))
 
     qwt <- tapply(wt, ifpid, sum)
     qwt <- qwt[match(ifpid, as.numeric(names(qwt)))]
@@ -43,25 +42,22 @@ calcDecomp <- function(f, d, bin, wt, nbin = max(bin), scale=FALSE, ...){
   } else {
     ## weights don't necessarily sum to 1
     qdiscrim <- NULL
-    discrim <- bindw[, sum((.SD - dbar)^2, na.rm = TRUE), by=seq_len(nrow(bindw))]$V1
+    discrim <- sum(binw * apply(bindw, 1, function(x) sum((x - dbar)^2, na.rm = TRUE)))
   }
 
   if(useifps){
     ## calibration
-    qcalib <- (f - bindbar)^2
-    qcalib <- rowSums(qcalib, na.rm = TRUE)
+    qcalib <- apply((f - bindbar)^2, 1, sum, na.rm = TRUE)
     qcalib <- tapply(wt * qcalib / qwt, ifpid, sum)
     calib <- mean(qcalib)
   } else {
     ## weights don't necessarily sum to 1
     qcalib <- NULL
-    calib <- (binf - bindw)^2
-    calib <- calib[, sum(.SD, na.rm = TRUE), by=seq_len(nrow(calib))]$V1
-    calib <- sum(calib)
+    calib <- sum(binw * apply((binf - bindw)^2, 1, sum, na.rm = TRUE))
   }
 
   ## usual mmde calculation:
-  mmde <- sum(wt * rowSums((f - d)^2))
+  mmde <- sum(wt * apply((f - d)^2, 1, sum))
   mmdecomp <- unc - discrim + calib
 
   if(abs(mmde - mmdecomp) > 1e-5){
@@ -70,31 +66,30 @@ calcDecomp <- function(f, d, bin, wt, nbin = max(bin), scale=FALSE, ...){
   }
 
   ## yates decomposition
-  fbar <- f[, lapply(.SD, function(x) sum(wt * x))]
-  fcent <- f[, .SD - fbar, by=seq_len(nrow(f))][,-1]
-  dcent <- d[, .SD - dbar, by=seq_len(nrow(d))][,-1]
-  fvar <- fcent[, lapply(.SD, function(x) sum(wt * x^2))]
+  fbar <- apply(f, 2, function(x) sum(wt * x))
+  fcent <- t(apply(f, 1, function(x) (x - fbar)))
+  dcent <- t(apply(d, 1, function(x) (x - dbar)))
+  fvar <- apply(fcent, 2, function(x) sum(wt * x^2))
   covfd <- fcent * dcent
-  covfd <- covfd[, lapply(.SD, function(x) sum(wt * x))]
+  covfd <- apply(covfd, 2, function(x) sum(wt * x))
   ##covfd2 <- rep(NA, ncol(f))
   ##for(j in 1:ncol(f)){
   ##  covfd2[j] <- sum(wt * (f[,j] - fbar[j]) * (d[,j] - dbar[j]))
   ##}
-  disc2 <- bindw[, (.SD - dbar) * (.SD - dbar), by=seq_len(nrow(bindw))][,-1]
-  disc2 <- disc2[, lapply(.SD, function(x) sum(binw * x, na.rm = TRUE))]
+  disc2 <- t(apply(bindw, 1, function(x) (x - dbar)^2))
+  disc2 <- apply(disc2, 2, function(x) sum(binw * x, na.rm = TRUE))
   calib2 <- sum((fbar - dbar)^2)
 
   dna <- d; dna[d == 0] <- NA
   f1 <- f * dna
   dna <- d; dna[d == 1] <- NA
   f0 <- f * (1 - dna)
-  fbar1 <- f1[, lapply(.SD, function(x) sum(wt * x, na.rm = TRUE) /
-                                        sum(wt * !is.na(x)))]
-
+  fbar1 <- apply(f1, 2, function(x) sum(wt * x, na.rm = TRUE) /
+                                    sum(wt * !is.na(x)))
   ## in case no d=1 for an alternative
   fbar1[is.na(fbar1)] <- 0
-  fbar0 <- f0[, lapply(.SD, function(x) sum(wt * x, na.rm = TRUE) /
-                                        sum(wt * !is.na(x)))]
+  fbar0 <- apply(f0, 2, function(x) sum(wt * x, na.rm = TRUE) /
+                                    sum(wt * !is.na(x)))
   ## in case no d=0 for an alternative
   fbar0[is.na(fbar0)] <- 0
   deltaf <- sum(fvar - (fbar1 - fbar0)^2 * dbar * (1 - dbar))
