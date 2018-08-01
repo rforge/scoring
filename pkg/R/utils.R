@@ -11,7 +11,7 @@ phOifp <- function(dat, ngrp, fcols, qtype){
 
   if(qinfo) ifpdat <- vector("list", ngrp)
   for(i in 1:ngrp){
-    fdat[[i]] <- dat[[i]][,..fcols]
+    fdat[[i]] <- dat[[i]][, fcols, with=FALSE]
 
     if(qinfo){
       ifpid <- dat[[i]]$qid
