@@ -53,8 +53,8 @@ scoreitems <- function(param, data, fam, ordered, decomp=FALSE, group=NULL, deca
     }
 
     if(decomp){
-        decargs <- c(decargs, list(forecast=data[,1:nalts],
-                                   outcome=data[,(nalts+1)],
+        decargs <- c(decargs, list(forecast=data[,1:max(nalts)],
+                                   outcome=data[,(max(nalts)+1)],
                                    group=group))
         d.res <- do.call("bdecomp", decargs)
 
