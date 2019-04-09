@@ -35,7 +35,13 @@ brierscore(object, data, group = NULL, decomp = FALSE, bounds = NULL,
 \details{
 If \code{decomp=TRUE} or \code{group} is supplied, the function returns
   a list (see value section).  Otherwise, the function returns a numeric
-  vector containing the Brier score associated with each forecast.
+  vector containing the Brier score associated with each
+  forecast. Abbreviations in the output include discrim (discrimination;
+  also called resolution), miscal (miscalibration; also called
+  reliability or calibration), miscal_lg (miscalibration in the large),
+  and unc (outcome uncertainty). Formal definitions of these quantities
+  can be found in Table 1 of the Merkle & Hartman paper referenced below
+  (also see Section 2 of that paper).
 
 Some \code{decompControl} arguments are specifically designed for forecasting tournaments and may not be useful in other situations. Possible arguments for \code{decompControl} include:
 \describe{
@@ -71,11 +77,12 @@ Depending on input arguments, \code{brierscore} may return an object of
   decompositions and mean Brier scores for each unique value of \code{group}.}
 }
 \references{
-Brier, G. W. (1950).  Verification of forecasts expressed in terms of
-probability.  \emph{Monthly Weather Review, 78},  1-3.
-
 Merkle, E. C. & Hartman, R. (2018). Weighted Brier score decompositions
-for topically heterogenous forecasting tournaments. \emph{Working paper}.
+for topically heterogenous forecasting tournaments. \emph{Judgment and
+  Decision Making, 13}, 185-201.
+
+Brier, G. W. (1950).  Verification of forecasts expressed in terms of
+probability. \emph{Monthly Weather Review, 78}, 1-3.
 
 Murphy, A. H. (1973).  A new vector partition of the probability score.
 \emph{Journal of Applied Meteorology, 12}, 595-600.
