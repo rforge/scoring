@@ -107,7 +107,7 @@ calcDecomp <- function(f, d, bin, wt, nbin = max(bin), scale=FALSE, ...){
     compmin <- rep(0,6)
     compmax <- c(ubnd, 2, sum(fvar), 1, ubnd, ubnd)
 
-    res <- (res - compmin)/compmax
+    res <- (res - compmin)/(compmax - compmin)
     ## reverse cal/var metrics so bigger is better
     res[2:4] <- 1 - res[2:4]
   }
